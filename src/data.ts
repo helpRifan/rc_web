@@ -229,7 +229,7 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
     date: "TechnoVIT '26",
     image: "/gallery/8.jpg",
     desc: "High-velocity autonomous and remote-controlled robotic sprint across specialized obstacle chicanes, steep banked turns, and precision track sections.",
-    status: "Registration Open",
+    status: "Upcoming",
     registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
   },
   {
@@ -237,7 +237,7 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
     date: "TechnoVIT '26",
     image: "/gallery/7.jpg",
     desc: "Autonomous navigation battle testing high-speed infrared optical arrays, PID algorithmic loop convergence, and micro-second path tracking precision.",
-    status: "Registration Open",
+    status: "Upcoming",
     registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
   },
   {
@@ -245,7 +245,7 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
     date: "TechnoVIT '26",
     image: "/gallery/3.jpg",
     desc: "Dynamic robotic soccer showdown featuring custom pneumatic kicking levers, omni-directional drive bases, and tactical ball control in the campus arena.",
-    status: "Registration Open",
+    status: "Upcoming",
     registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
   },
   {
@@ -253,7 +253,7 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
     date: "TechnoVIT '26",
     image: "/gallery/2.jpg",
     desc: "Extreme terrain traversal challenge requiring rugged suspension kinematics, bridge balancing, trench navigation, and precision pilot control under time trials.",
-    status: "Registration Open",
+    status: "Upcoming",
     registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
   },
   {
@@ -261,7 +261,7 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
     date: "TechnoVIT '26",
     image: "/gallery/4.jpg",
     desc: "High-torque robotic wrestling clash where reinforced combat bots maneuver, counter-leverage, and forcefully eject opponents outside the ring perimeter.",
-    status: "Registration Open",
+    status: "Upcoming",
     registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
   }
 ];
