@@ -424,6 +424,39 @@ app.post("/api/email/send-otp", async (req, res) => {
   });
 });
 
+// AI Cybernetic Core Endpoint
+app.post("/api/ai/think", requireAdminAuth, async (req: any, res: any) => {
+  try {
+    const { message, chatHistory } = req.body;
+    
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(400).json({ success: false, error: "GEMINI_API_KEY not configured" });
+    }
+
+    const { GoogleGenAI } = await import("@google/genai");
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+    const context = `You are the Cognitive Cybernetic Brain of the VITC Robotics Club. 
+You manage and provide answers related to the club's administration, mechanics, software, and kinetic optimization. 
+Keep your answers concise, highly technical, and futuristic.
+
+Previous Chat History:
+${chatHistory?.map((c: any) => `${c.role}: ${c.text}`).join("\n")}
+
+User: ${message}`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: context,
+    });
+
+    res.json({ success: true, text: response.text });
+  } catch (error: any) {
+    console.error("AI Error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Form Submissions endpoint (saves to Supabase form_submissions)
 app.post("/api/forms/submit", async (req, res) => {
   const { formType, fullName, email, phone, rollNumber, departmentPreference, message } = req.body;
