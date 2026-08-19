@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom responsive gutters and container width utilities */
+@utility px-gutter {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  @media (min-width: 640px) {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  @media (min-width: 1024px) {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+@utility max-w-container-max {
+  max-width: 80rem; /* 1280px */
+}
+
+/* Custom Spacing overrides for un-defined variables */
+@utility space-y-md {
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 1.5rem;
+  }
+}
+@utility space-y-lg {
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 2.25rem;
+  }
+}
+@utility space-y-xl {
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 3.5rem;
+  }
+}
+@utility space-y-xxl {
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 5rem;
+  }
+}
+
+@utility gap-xxl {
+  gap: 4rem;
+  @media (min-width: 768px) {
+    gap: 5rem;
+  }
+}
+
+@utility pb-xl {
+  padding-bottom: 4rem;
+}
+
+/* Custom Typography mapping so headline-lg and bodies display matching fonts and sizes */
+@utility text-headline-lg {
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+  @media (min-width: 640px) {
+    font-size: 2.25rem;
+    line-height: 2.75rem;
+  }
+  @media (min-width: 1024px) {
+    font-size: 2.75rem;
+    line-height: 3.25rem;
+  }
+}
+
+@utility text-body-lg {
+  font-size: 1.05rem;
+  line-height: 1.6rem;
+  @media (min-width: 640px) {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+}
+
+@utility text-body-md {
+  font-size: 0.875rem;
+  line-height: 1.4rem;
+  @media (min-width: 640px) {
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+  }
+}
+
+/* Base custom resets */
+body {
+  background-color: #0c0c0e;
+  color: #e5e1e4;
+  font-family: var(--font-sans);
+}
+
+/* Industrial blueprint/grid animation and styling */
+.industrial-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(232, 184, 40, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(232, 184, 40, 0.02) 1px, transparent 1px);
+}
+
+.blueprint-grid {
+  background-size: 100px 100px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+}
+
+/* Tech highlights border glow and corner marks style */
+.tech-border {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  transition: all 0.5s ease;
+}
+
+.tech-border::before, .tech-border::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1px solid #e8b828;
+  transition: all 0.5s ease;
+}
+
+.tech-border::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.tech-border::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+.tech-border:hover::before { width: 100%; height: 100%; opacity: 0.15; }
+.tech-border:hover::after { width: 100%; height: 100%; opacity: 0.15; }
+
+/* Custom smooth scroll bar for horizontal flow and layouts */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e8b828;
+}
+
+/* Pulse diagnostics animation */
+@keyframes diagnosticPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+.pulse-diagnostic {
+  animation: diagnosticPulse 2.5s infinite ease-in-out;
+}
+
+/* Infinite sliding marquee scroll animation */
+@keyframes marqueeScroll {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0%, 0, 0);
+  }
+}
+.animate-marquee {
+  animation: marqueeScroll 35s linear infinite;
+}
+
+/* Hide scrollbars for slick horizontal touch zones */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+

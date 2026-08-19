@@ -1,0 +1,6 @@
+{
+  "name": "VITC Robotics",
+  "description": "The official high-tech platform of the VIT Chennai Robotics Club, featuring operational units, live dashboards, core members, certificate validation, and a powerful cognitive AI assistant with deep thinking capabilities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
