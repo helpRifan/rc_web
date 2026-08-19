@@ -1,20 +1,58 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Robotics Club - VIT Chennai
 
-# Run and deploy your AI Studio app
+Welcome to the official web platform for the **Robotics Club at Vellore Institute of Technology, Chennai**. 
+This is a modern, responsive, and dynamic web application built to showcase the club's achievements, members, galleries, events, and collaborative partners.
 
-This contains everything you need to run your app locally.
+## Tech Stack
+- **Frontend**: React (Vite), TypeScript, Tailwind CSS, Framer Motion, Lucide Icons
+- **Backend**: Node.js, Express.js
+- **Database / Auth**: Supabase (PostgreSQL, JWT Authentication)
+- **Image CDN**: ImageKit
+- **Email Service**: Resend API
+- **Deployment Configuration**: Optimized for Vercel Serverless deployments.
 
-View your app in AI Studio: https://ai.studio/apps/96e6bd2c-6f49-4f9d-a64b-5cf430e9d462
+## Features
+- **Dynamic Content:** Members, Events, Gallery, and Collaborations fetch data dynamically from Supabase.
+- **Admin Dashboard:** Secured with Supabase JWT Authentication. Only authorized users with `@vitstudent.ac.in` domain emails can request clearance or gain access.
+- **Secure Certificate Verification:** Includes a robust OTP-based certificate validation and retrieval pipeline using the Resend API.
+- **Form Submissions:** Contact and Recruitment forms integrated directly with the backend.
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:** 
+- Node.js (v18+)
+- Active Supabase, ImageKit, and Resend accounts.
 
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+2. **Environment Variables:**
+   Create a `.env.local` file in the root directory and add your keys:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+   RESEND_API_KEY=your_resend_api_key
+
+   VITE_IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
+   VITE_IMAGEKIT_URL_ENDPOINT=your_imagekit_url_endpoint
+   IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
+   IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
+   IMAGEKIT_URL_ENDPOINT=your_imagekit_url_endpoint
+   ```
+3. **Database Setup:**
+   Run the queries found in `supabase_schema.sql` inside your Supabase SQL Editor to generate the necessary tables and Row Level Security (RLS) policies.
+
+4. **Run the app:**
+   ```bash
+   npm run dev
+   ```
+
+## Deployment
+This project is configured out-of-the-box for **Vercel**. 
+Simply link this repository to your Vercel account, inject your Environment Variables, and Vercel's Node builder will automatically host the React frontend and deploy the Express API as Serverless Functions via the provided `vercel.json`.
