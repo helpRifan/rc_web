@@ -3,19 +3,14 @@ dotenv.config({ path: ".env.local" });
 
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import ImageKit from "imagekit";
-import dns from "dns";
-
-// Fix Node dns resolution for local/internal calls
-dns.setDefaultResultOrder("ipv4first");
 
 const app = express();
 app.use(express.json());
 
-// Initialize Supabase Client
+// Initialize Supabase Client with resilient fallbacks
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
@@ -28,14 +23,20 @@ const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const ikPublicKey = process.env.IMAGEKIT_PUBLIC_KEY || process.env.VITE_IMAGEKIT_PUBLIC_KEY || "";
 const ikPrivateKey = process.env.IMAGEKIT_PRIVATE_KEY || "";
 const ikUrlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT || process.env.VITE_IMAGEKIT_URL_ENDPOINT || "";
-const imagekit = (ikPublicKey && ikPrivateKey && ikUrlEndpoint)
-  ? new ImageKit({
+
+
+let imagekit: ImageKit | null = null;
+try {
+  if (ikPublicKey && ikPrivateKey && ikUrlEndpoint) {
+    imagekit = new ImageKit({
       publicKey: ikPublicKey,
       privateKey: ikPrivateKey,
       urlEndpoint: ikUrlEndpoint
-    })
-  : null;
-
+    });
+  }
+} catch (e) {
+  console.error("ImageKit initialization error:", e);
+}
 
 // Security: Core Admin list (mirrored from client)
 const ADMIN_EMAILS = [
@@ -78,18 +79,22 @@ async function requireAdminAuth(req: any, res: any, next: any) {
   }
 
   const token = authHeader.split(" ")[1];
-  const { data: { user }, error } = await supabase.auth.getUser(token);
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
 
-  if (error || !user || !user.email) {
-    return res.status(401).json({ error: "Unauthorized: Invalid session token." });
+    if (error || !user || !user.email) {
+      return res.status(401).json({ error: "Unauthorized: Invalid session token." });
+    }
+
+    if (!isClubAdmin(user.email)) {
+      return res.status(403).json({ error: `Forbidden: Administrator clearance required for ${user.email}.` });
+    }
+
+    req.user = user;
+    next();
+  } catch (err: any) {
+    return res.status(401).json({ error: "Unauthorized: Session verification failed." });
   }
-
-  if (!isClubAdmin(user.email)) {
-    return res.status(403).json({ error: "Forbidden: Administrator clearance required." });
-  }
-
-  req.user = user;
-  next();
 }
 
 async function requireAuth(req: any, res: any, next: any) {
@@ -101,25 +106,30 @@ async function requireAuth(req: any, res: any, next: any) {
   }
 
   const token = authHeader.split(" ")[1];
-  const { data: { user }, error } = await supabase.auth.getUser(token);
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
 
-  if (error || !user || !user.email) {
-    return res.status(401).json({ error: "Unauthorized: Invalid session token." });
+    if (error || !user || !user.email) {
+      return res.status(401).json({ error: "Unauthorized: Invalid session token." });
+    }
+
+    req.user = user;
+    next();
+  } catch (err: any) {
+    return res.status(401).json({ error: "Unauthorized: Session verification failed." });
   }
-
-  req.user = user;
-  next();
 }
 
+const router = express.Router();
 
 // Health & System Status Endpoint
-app.get("/api/health", async (req, res) => {
+router.get("/health", async (req, res) => {
   let supabaseStatus = "disconnected";
   let supabaseError = null;
 
   if (supabase) {
     try {
-      const { data, error } = await supabase.from("certificates").select("id").limit(1);
+      const { data, error } = await supabase.from("events").select("id").limit(1);
       if (!error) supabaseStatus = "connected";
       else supabaseError = error.message;
     } catch (e: any) {
@@ -147,20 +157,22 @@ app.get("/api/health", async (req, res) => {
 });
 
 // ImageKit Authentication Parameter endpoint for direct client uploads
-app.get("/api/imagekit/auth", requireAdminAuth, (req, res) => {
+router.get("/imagekit/auth", requireAdminAuth, (req, res) => {
   if (!imagekit) {
     return res.status(503).json({
-      error: "ImageKit is not configured. Add IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, and IMAGEKIT_URL_ENDPOINT to .env.local."
+      error: "ImageKit is not configured. Add IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, and IMAGEKIT_URL_ENDPOINT to environment."
     });
   }
-  const authParams = imagekit.getAuthenticationParameters();
-  res.json(authParams);
+  try {
+    const authParams = imagekit.getAuthenticationParameters();
+    res.json(authParams);
+  } catch (e: any) {
+    res.status(500).json({ error: e.message || "Failed to generate ImageKit auth parameters." });
+  }
 });
 
-
-
 // Events CRUD Endpoints
-app.get("/api/events", async (req, res) => {
+router.get("/events", async (req, res) => {
   if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
   try {
     const { data, error } = await supabase.from("events").select("*").order("created_at", { ascending: false });
@@ -171,10 +183,11 @@ app.get("/api/events", async (req, res) => {
   }
 });
 
-app.post("/api/events", requireAdminAuth, async (req, res) => {
+router.post("/events", requireAdminAuth, async (req, res) => {
   if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
   try {
-    const { data, error } = await supabase.from("events").insert([req.body]).select().single();
+    const { id, created_at, ...cleanPayload } = req.body;
+    const { data, error } = await supabase.from("events").insert([cleanPayload]).select().single();
     if (error) throw error;
     res.json(data);
   } catch (error: any) {
@@ -182,11 +195,12 @@ app.post("/api/events", requireAdminAuth, async (req, res) => {
   }
 });
 
-app.put("/api/events/:id", requireAdminAuth, async (req, res) => {
+router.put("/events/:id", requireAdminAuth, async (req, res) => {
   if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
   try {
     const { id } = req.params;
-    const { data, error } = await supabase.from("events").update(req.body).eq("id", id).select().single();
+    const { id: _, created_at: __, ...cleanPayload } = req.body;
+    const { data, error } = await supabase.from("events").update(cleanPayload).eq("id", id).select().single();
     if (error) throw error;
     res.json(data);
   } catch (error: any) {
@@ -194,7 +208,7 @@ app.put("/api/events/:id", requireAdminAuth, async (req, res) => {
   }
 });
 
-app.delete("/api/events/:id", requireAdminAuth, async (req, res) => {
+router.delete("/events/:id", requireAdminAuth, async (req, res) => {
   if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
   try {
     const { id } = req.params;
@@ -213,17 +227,17 @@ let labSettings = {
   serverMaintenance: false,
 };
 
-app.get("/api/admin/settings", requireAdminAuth, (req, res) => {
+router.get("/admin/settings", requireAdminAuth, (req, res) => {
   res.json(labSettings);
 });
 
-app.post("/api/admin/settings", requireAdminAuth, (req, res) => {
+router.post("/admin/settings", requireAdminAuth, (req, res) => {
   labSettings = { ...labSettings, ...req.body };
   res.json({ success: true, settings: labSettings });
 });
 
 // Admin Request Access Endpoint
-app.post("/api/admin/request-access", requireAuth, async (req: any, res: any) => {
+router.post("/admin/request-access", requireAuth, async (req: any, res: any) => {
   const user = req.user;
 
   if (isClubAdmin(user.email)) {
@@ -264,7 +278,7 @@ const mockActivities = [
   { id: "RBT-711", status: "Active", name: "Meera Nair", role: "Member", dept: "Software", time: "2 days ago" },
 ];
 
-app.get("/api/admin/activities", requireAdminAuth, (req, res) => {
+router.get("/admin/activities", requireAdminAuth, (req, res) => {
   res.json(mockActivities);
 });
 
@@ -286,12 +300,11 @@ const mockCertificates: Record<string, Record<string, string>> = {
   },
 };
 
-// Certificate Validation: Queries Supabase with fallback to local mock
-app.post("/api/certificates/validate", async (req, res) => {
+// Certificate Validation
+router.post("/certificates/validate", async (req, res) => {
   const { year, rollNumber } = req.body;
   const uppercaseRoll = (rollNumber || "").trim().toUpperCase();
 
-  // Try querying Supabase first
   if (supabase) {
     try {
       const { data, error } = await supabase
@@ -316,7 +329,6 @@ app.post("/api/certificates/validate", async (req, res) => {
     }
   }
 
-  // Fallback to local records
   const yearRecords = mockCertificates[year];
   if (yearRecords && yearRecords[uppercaseRoll]) {
     res.json({
@@ -336,12 +348,8 @@ app.post("/api/certificates/validate", async (req, res) => {
 });
 
 // Resend Email Notification / OTP Dispatch Endpoint
-app.post("/api/email/send-otp", async (req, res) => {
+router.post("/email/send-otp", async (req, res) => {
   const { recipientEmail, rollNumber, studentName, otp } = req.body;
-
-  if (!recipientEmail && !process.env.RESEND_API_KEY) {
-    return res.status(400).json({ error: "Recipient email or Resend API key missing." });
-  }
 
   const targetEmail = recipientEmail || "rifanajmal@gmail.com";
   const verificationCode = otp || "123456";
@@ -403,41 +411,8 @@ app.post("/api/email/send-otp", async (req, res) => {
   });
 });
 
-// AI Cybernetic Core Endpoint
-app.post("/api/ai/think", requireAdminAuth, async (req: any, res: any) => {
-  try {
-    const { message, chatHistory } = req.body;
-    
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(400).json({ success: false, error: "GEMINI_API_KEY not configured" });
-    }
-
-    const { GoogleGenAI } = await import("@google/genai");
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-    const context = `You are the Cognitive Cybernetic Brain of the VITC Robotics Club. 
-You manage and provide answers related to the club's administration, mechanics, software, and kinetic optimization. 
-Keep your answers concise, highly technical, and futuristic.
-
-Previous Chat History:
-${chatHistory?.map((c: any) => `${c.role}: ${c.text}`).join("\n")}
-
-User: ${message}`;
-
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: context,
-    });
-
-    res.json({ success: true, text: response.text });
-  } catch (error: any) {
-    console.error("AI Error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Form Submissions endpoint (saves to Supabase form_submissions)
-app.post("/api/forms/submit", async (req, res) => {
+// Form Submissions endpoint
+router.post("/forms/submit", async (req, res) => {
   const { formType, fullName, email, phone, rollNumber, departmentPreference, message } = req.body;
 
   if (!fullName || !email) {
@@ -471,14 +446,18 @@ app.post("/api/forms/submit", async (req, res) => {
     }
   }
 
-  // Fallback success if Supabase table not yet created
   res.json({ success: true, message: "Submission logged locally." });
 });
+
+// Mount router on both /api and root /
+app.use("/api", router);
+app.use("/", router);
 
 async function startServer() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 5173;
 
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -503,4 +482,3 @@ if (!process.env.VERCEL) {
 }
 
 export default app;
-

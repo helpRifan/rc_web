@@ -23,11 +23,22 @@ const urlEndpoint = import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || "https://ik.im
 const authenticator = async () => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    const response = await fetch("/api/imagekit/auth", {
+    const token = session?.access_token || "";
+    
+    // Try /api/imagekit/auth first
+    let response = await fetch("/api/imagekit/auth", {
       headers: {
-        "Authorization": `Bearer ${session?.access_token || ""}`
+        "Authorization": `Bearer ${token}`
       }
     });
+
+    if (!response.ok && response.status === 404) {
+      response = await fetch("/imagekit/auth", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+    }
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -40,8 +51,8 @@ const authenticator = async () => {
     }
     
     const data = await response.json();
-    const { signature, expire, token } = data;
-    return { signature, expire, token };
+    const { signature, expire, token: ikToken } = data;
+    return { signature, expire, token: ikToken };
   } catch (error: any) {
     console.error("ImageKit Auth Error:", error);
     throw new Error(error.message || "Failed to authenticate ImageKit upload.");
@@ -110,48 +121,78 @@ export default function EventsManager() {
     e.preventDefault();
     const headers = await getHeaders();
     
+    // Sanitize payload: omit id and timestamp fields
+    const cleanPayload = {
+      title: formData.title || "Untitled Event",
+      category: formData.category || null,
+      date: formData.date || null,
+      description: formData.description || null,
+      image_url: formData.image_url || null,
+      status: formData.status || (formData.stage === "completed" ? "Completed" : "Upcoming"),
+      registration_link: formData.registration_link || null,
+      stage: formData.stage || "upcoming",
+      year: formData.year || null,
+      link: formData.link || null
+    };
+
     try {
       if (editingId) {
-        // Try direct Supabase first
-        const { error: sbError } = await supabase
-          .from("events")
-          .update(formData)
-          .eq("id", editingId);
-
-        if (sbError) {
-          console.warn("Direct Supabase update failed, attempting API route:", sbError);
+        // 1. Try Backend API first
+        let apiSuccess = false;
+        try {
           const res = await fetch(`/api/events/${editingId}`, {
             method: "PUT",
             headers,
-            body: JSON.stringify(formData)
+            body: JSON.stringify(cleanPayload)
           });
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error || sbError.message || "Failed to update event");
+          if (res.ok) {
+            apiSuccess = true;
+          }
+        } catch (apiErr) {
+          console.warn("API update error, falling back to direct Supabase:", apiErr);
+        }
+
+        if (!apiSuccess) {
+          // 2. Direct Supabase fallback
+          const { error: sbError } = await supabase
+            .from("events")
+            .update(cleanPayload)
+            .eq("id", editingId);
+
+          if (sbError) {
+            throw new Error(sbError.message || "Failed to update event in database");
           }
         }
       } else {
-        // Try direct Supabase first
-        const { error: sbError } = await supabase
-          .from("events")
-          .insert([formData]);
-
-        if (sbError) {
-          console.warn("Direct Supabase insert failed, attempting API route:", sbError);
+        // 1. Try Backend API first
+        let apiSuccess = false;
+        try {
           const res = await fetch("/api/events", {
             method: "POST",
             headers,
-            body: JSON.stringify(formData)
+            body: JSON.stringify(cleanPayload)
           });
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error || sbError.message || "Failed to create event");
+          if (res.ok) {
+            apiSuccess = true;
+          }
+        } catch (apiErr) {
+          console.warn("API insert error, falling back to direct Supabase:", apiErr);
+        }
+
+        if (!apiSuccess) {
+          // 2. Direct Supabase fallback
+          const { error: sbError } = await supabase
+            .from("events")
+            .insert([cleanPayload]);
+
+          if (sbError) {
+            throw new Error(sbError.message || "Failed to create event in database");
           }
         }
       }
       setShowModal(false);
       resetForm();
-      fetchEvents();
+      await fetchEvents();
     } catch (e: any) {
       console.error("Save failed", e);
       alert(e.message || "Failed to save event. Ensure you have administrator clearance.");
@@ -163,23 +204,30 @@ export default function EventsManager() {
     
     const headers = await getHeaders();
     try {
-      const { error: sbError } = await supabase
-        .from("events")
-        .delete()
-        .eq("id", id);
-
-      if (sbError) {
-        console.warn("Direct Supabase delete failed, attempting API route:", sbError);
+      let apiSuccess = false;
+      try {
         const res = await fetch(`/api/events/${id}`, {
           method: "DELETE",
           headers
         });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || sbError.message || "Failed to delete event");
+        if (res.ok) {
+          apiSuccess = true;
+        }
+      } catch (apiErr) {
+        console.warn("API delete error, falling back to direct Supabase:", apiErr);
+      }
+
+      if (!apiSuccess) {
+        const { error: sbError } = await supabase
+          .from("events")
+          .delete()
+          .eq("id", id);
+
+        if (sbError) {
+          throw new Error(sbError.message || "Failed to delete event from database");
         }
       }
-      fetchEvents();
+      await fetchEvents();
     } catch (e: any) {
       console.error("Delete failed", e);
       alert(e.message || "Failed to delete event.");
@@ -188,26 +236,45 @@ export default function EventsManager() {
 
   const handleMoveToCompleted = async (event: EventItem) => {
     const headers = await getHeaders();
-    const updated = { ...event, stage: "completed" as const, status: "Completed" };
-    try {
-      const { error: sbError } = await supabase
-        .from("events")
-        .update(updated)
-        .eq("id", event.id);
+    const updated = {
+      title: event.title,
+      category: event.category || "Completed",
+      date: event.date || null,
+      description: event.description || null,
+      image_url: event.image_url || null,
+      status: "Completed",
+      registration_link: event.registration_link || null,
+      stage: "completed" as const,
+      year: event.year || "26'",
+      link: event.link || null
+    };
 
-      if (sbError) {
-        console.warn("Direct Supabase update failed, attempting API route:", sbError);
+    try {
+      let apiSuccess = false;
+      try {
         const res = await fetch(`/api/events/${event.id}`, {
           method: "PUT",
           headers,
           body: JSON.stringify(updated)
         });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || sbError.message || "Failed to update event");
+        if (res.ok) {
+          apiSuccess = true;
+        }
+      } catch (apiErr) {
+        console.warn("API move error, falling back to direct Supabase:", apiErr);
+      }
+
+      if (!apiSuccess) {
+        const { error: sbError } = await supabase
+          .from("events")
+          .update(updated)
+          .eq("id", event.id);
+
+        if (sbError) {
+          throw new Error(sbError.message || "Failed to mark event as completed in database");
         }
       }
-      fetchEvents();
+      await fetchEvents();
     } catch (e: any) {
       console.error("Move failed", e);
       alert(e.message || "Failed to mark event as completed.");
@@ -229,7 +296,7 @@ export default function EventsManager() {
   const onError = (err: any) => {
     console.error("Image Upload Error:", err);
     setUploadingImage(false);
-    alert(`Image upload failed: ${err.message || "Make sure you are logged in with an Admin account or paste an image URL directly."}`);
+    alert(`Image upload error: ${err.message || "Upload failed. You can also paste an image URL or choose a preset in the 'URL / Presets' tab."}`);
   };
 
   const onSuccess = (res: any) => {
@@ -408,14 +475,14 @@ export default function EventsManager() {
                         <button 
                           type="button" 
                           onClick={() => setUploadMode("upload")}
-                          className={`px-2.5 py-1 rounded transition-colors ${uploadMode === "upload" ? "bg-[#e8b828] text-black font-semibold" : "text-zinc-400 hover:text-white"}`}
+                          className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${uploadMode === "upload" ? "bg-[#e8b828] text-black font-semibold" : "text-zinc-400 hover:text-white"}`}
                         >
                           Upload File
                         </button>
                         <button 
                           type="button" 
                           onClick={() => setUploadMode("url")}
-                          className={`px-2.5 py-1 rounded transition-colors ${uploadMode === "url" ? "bg-[#e8b828] text-black font-semibold" : "text-zinc-400 hover:text-white"}`}
+                          className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${uploadMode === "url" ? "bg-[#e8b828] text-black font-semibold" : "text-zinc-400 hover:text-white"}`}
                         >
                           URL / Presets
                         </button>
