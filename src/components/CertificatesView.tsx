@@ -330,7 +330,7 @@ export default function CertificatesView() {
                   <div className="flex justify-between items-end border-t border-zinc-200 pt-6 mt-10 text-[10px] text-zinc-500">
                     <div className="text-left space-y-1">
                       <p className="font-mono text-[#e8b828] font-bold">AUTHORIZED</p>
-                      <p className="font-sans">Rahul Sharma, President</p>
+                      <p className="font-sans">Core Executive Board, VITC Robotics</p>
                     </div>
                     <div className="text-right space-y-1">
                       <p className="font-mono">{unlockedCertificate.date}</p>
