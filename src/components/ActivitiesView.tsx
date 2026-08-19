@@ -70,36 +70,45 @@ export default function ActivitiesView() {
             >
               
               {/* Cover Area */}
-              <div className="h-40 w-full bg-[#0c0c0e] relative overflow-hidden flex items-center justify-center border-b border-zinc-800">
-                <div className="flex flex-col items-center">
-                  <Terminal className="w-8 h-8 text-zinc-600 mb-2" />
-                  <span className="font-mono text-[9px] text-zinc-500 uppercase tracking-widest font-semibold">SYSTEM SCHEMATIC LIVE_0{idx + 1}</span>
-                </div>
-                <div className="absolute top-3 right-3 bg-[#101010] border border-zinc-800 px-3 py-1 rounded flex items-center gap-2">
+              <div className="h-48 w-full bg-[#0c0c0e] relative overflow-hidden flex items-center justify-center border-b border-zinc-800">
+                {event.image ? (
+                  <img 
+                    src={event.image} 
+                    alt={event.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  />
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <Terminal className="w-8 h-8 text-zinc-600 mb-2" />
+                    <span className="font-mono text-[9px] text-zinc-500 uppercase tracking-widest font-semibold">SYSTEM SCHEMATIC LIVE_0{idx + 1}</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#101010] via-black/20 to-transparent"></div>
+                <div className="absolute top-3 right-3 bg-[#101010]/90 backdrop-blur-sm border border-zinc-800 px-3 py-1 rounded flex items-center gap-2 z-10">
                   <span className={`w-1.5 h-1.5 rounded-full ${event.status === 'Coming Soon' ? 'bg-zinc-500' : 'bg-[#e8b828] animate-pulse'}`}></span>
-                  <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-[0.1em] font-semibold">{event.status}</span>
+                  <span className="font-mono text-[10px] text-zinc-300 uppercase tracking-[0.1em] font-semibold">{event.status}</span>
                 </div>
               </div>
 
               {/* Card Content */}
               <div className="p-6 flex-grow flex flex-col justify-between z-10 relative">
                 <div className="space-y-4">
-                  <div className="font-mono text-[10px] text-zinc-500 font-semibold uppercase tracking-[0.2em]">{event.type} // {event.date}</div>
-                  <h3 className="font-sans text-[#e5e1e4] text-xl font-medium tracking-tight">{event.title}</h3>
-                  <p className="font-sans text-sm text-zinc-400 leading-relaxed line-clamp-2">{event.desc}</p>
+                  <div className="font-mono text-[10px] text-[#e8b828] font-semibold uppercase tracking-[0.2em]">{event.type} // {event.date}</div>
+                  <h3 className="font-sans text-[#e5e1e4] text-xl font-medium tracking-tight group-hover:text-[#e8b828] transition-colors">{event.title}</h3>
+                  <p className="font-sans text-sm text-zinc-400 leading-relaxed line-clamp-3">{event.desc}</p>
                 </div>
                 <div className="mt-6 flex flex-col gap-2">
                   <span className="font-sans text-[11px] text-zinc-500 text-center leading-tight">
                     Redirects to VITC Event Hub.<br/>Search for <strong className="text-zinc-300">"{event.title}"</strong> to register.
                   </span>
                   <a 
-                    href="https://eventhubcc.vit.ac.in/EventHub/"
+                    href={event.registrationLink || "https://eventhubcc.vit.ac.in/EventHub/"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`w-full font-sans text-sm font-semibold h-10 rounded-md transition-all duration-300 flex items-center justify-center select-none ${
+                    className={`w-full font-sans text-sm font-semibold h-10 rounded-md transition-all duration-300 flex items-center justify-center select-none cursor-pointer ${
                       event.status === 'Coming Soon' 
                         ? 'bg-[#0c0c0e] border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900' 
-                        : 'bg-[#e8b828] text-[#101010] hover:bg-yellow-400'
+                        : 'bg-[#e8b828] text-[#101010] hover:bg-yellow-400 font-bold'
                     }`}
                   >
                     {event.status === 'Coming Soon' ? 'View on Event Hub' : 'Register on Event Hub'}

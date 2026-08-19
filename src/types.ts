@@ -28,6 +28,7 @@ export interface DeploymentEvent {
   image: string;
   desc: string;
   status: "Registration Open" | "Coming Soon" | string;
+  registrationLink?: string;
 }
 
 export interface ArchiveItem {

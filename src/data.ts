@@ -225,28 +225,49 @@ export const CLUB_MEMBERS: Member[] = [...BOARD_MEMBERS, ...CORE_MEMBERS];
 
 export const UPCOMING_EVENTS: DeploymentEvent[] = [
   {
-    title: "Advanced Kinematics",
-    type: "Workshop",
-    date: "14.10.24",
-    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=500",
-    desc: "Hands-on session detailing inverse kinematics for 6-DOF industrial robotic manipulators. Highly recommended for mechanics enthusiasts.",
-    status: "Registration Open"
+    title: "Roborace",
+    type: "TechnoVIT '26 Flagship",
+    date: "TechnoVIT '26",
+    image: "/gallery/8.jpg",
+    desc: "High-velocity autonomous and remote-controlled robotic sprint across specialized obstacle chicanes, steep banked turns, and precision track sections.",
+    status: "Registration Open",
+    registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
   },
   {
-    title: "AI in Automation",
-    type: "Guest Lecture",
-    date: "22.10.24",
-    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=500",
-    desc: "Industry expert talk on integrating convolutional neural networks with legacy programmable logic control (PLC) hardware suites.",
-    status: "Registration Open"
+    title: "Line Follower",
+    type: "TechnoVIT '26 Autonomous",
+    date: "TechnoVIT '26",
+    image: "/gallery/7.jpg",
+    desc: "Autonomous navigation battle testing high-speed infrared optical arrays, PID algorithmic loop convergence, and micro-second path tracking precision.",
+    status: "Registration Open",
+    registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
   },
   {
-    title: "RoboClash 2024",
-    type: "Competition",
-    date: "05.11.24",
-    image: "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&q=80&w=500",
-    desc: "Annual autonomous combat robotics tournament on the custom reinforced campus arena. Prepare your chassis for high-impact trials.",
-    status: "Coming Soon"
+    title: "Robosoccer",
+    type: "TechnoVIT '26 Arena Combat",
+    date: "TechnoVIT '26",
+    image: "/gallery/3.jpg",
+    desc: "Dynamic robotic soccer showdown featuring custom pneumatic kicking levers, omni-directional drive bases, and tactical ball control in the campus arena.",
+    status: "Registration Open",
+    registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
+  },
+  {
+    title: "Obstacle Course",
+    type: "TechnoVIT '26 Endurance",
+    date: "TechnoVIT '26",
+    image: "/gallery/2.jpg",
+    desc: "Extreme terrain traversal challenge requiring rugged suspension kinematics, bridge balancing, trench navigation, and precision pilot control under time trials.",
+    status: "Registration Open",
+    registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
+  },
+  {
+    title: "Robosumo",
+    type: "TechnoVIT '26 Heavyweight",
+    date: "TechnoVIT '26",
+    image: "/gallery/4.jpg",
+    desc: "High-torque robotic wrestling clash where reinforced combat bots maneuver, counter-leverage, and forcefully eject opponents outside the ring perimeter.",
+    status: "Registration Open",
+    registrationLink: "https://eventhubcc.vit.ac.in/EventHub/"
   }
 ];
 

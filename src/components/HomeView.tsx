@@ -508,13 +508,13 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                     Redirects to VITC Event Hub.<br/>Search for <strong className="text-zinc-200">"{selectedMarqueeCard.title}"</strong> to register.
                   </span>
                   <a 
-                    href="https://eventhubcc.vit.ac.in/EventHub/"
+                    href={selectedMarqueeCard.registrationLink || "https://eventhubcc.vit.ac.in/EventHub/"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`w-full font-sans text-sm font-semibold h-12 rounded-md transition-all duration-300 flex items-center justify-center select-none mt-2 ${
                       selectedMarqueeCard.status === 'Coming Soon' 
                         ? 'bg-[#0c0c0e] border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900' 
-                        : 'bg-[#e8b828] text-[#101010] hover:bg-yellow-400'
+                        : 'bg-[#e8b828] text-[#101010] hover:bg-yellow-400 font-bold'
                     }`}
                   >
                     {selectedMarqueeCard.status === 'Coming Soon' ? 'View on Event Hub' : 'Register on Event Hub'}
