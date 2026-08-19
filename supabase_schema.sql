@@ -29,15 +29,20 @@ CREATE TABLE IF NOT EXISTS public.members (
 -- ==============================================================================
 -- 2. TABLE: events
 -- ==============================================================================
+DROP TABLE IF EXISTS public.events CASCADE;
+
 CREATE TABLE IF NOT EXISTS public.events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title TEXT NOT NULL,
-    type TEXT NOT NULL,
-    date TEXT NOT NULL,
-    description TEXT NOT NULL,
+    category TEXT, -- e.g. for archive categories
+    date TEXT,
+    description TEXT,
     image_url TEXT,
-    status TEXT DEFAULT 'Registration Open',
-    registration_link TEXT DEFAULT 'https://eventhubcc.vit.ac.in/EventHub/',
+    status TEXT DEFAULT 'Upcoming',
+    registration_link TEXT,
+    stage TEXT NOT NULL DEFAULT 'upcoming' CHECK (stage IN ('upcoming', 'completed')),
+    year TEXT,
+    link TEXT, -- External link (e.g., Google Photos gallery)
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

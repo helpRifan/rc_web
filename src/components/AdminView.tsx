@@ -9,6 +9,7 @@ import {
 import { CLUB_MEMBERS, DIVISIONAL_MEMBERS, UPCOMING_EVENTS } from "../data";
 import { Member, ActivityLog } from "../types";
 import { supabase, signInWithGoogle, signOut, isAuthorizedStudentEmail, isClubAdmin } from "../lib/supabase";
+import EventsManager from "./EventsManager";
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -34,6 +35,8 @@ function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
 }
 
 export default function AdminView() {
+  const [activeView, setActiveView] = useState<"overview" | "events">("overview");
+  
   // Session Authentication states
   const [currentUser, setCurrentUser] = useState<Member | null>(() => {
     const saved = localStorage.getItem("vit_robotics_club_admin_session");
@@ -156,11 +159,6 @@ export default function AdminView() {
     }
   }, [currentUser]);
 
-  useEffect(() => {
-    if (chatBottomRef.current) {
-      chatBottomRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [chatLog, aiLoading]);
 
   // Google OAuth Login Trigger
   const handleGoogleLogin = async () => {
@@ -263,77 +261,6 @@ export default function AdminView() {
     setNewName("");
   };
 
-  // Submit trigger to AI Core
-  const handleAskAI = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!prompt.trim() || aiLoading) return;
-
-    const userMsg = prompt.trim();
-    setPrompt("");
-    setAiError("");
-    setChatLog(prev => [...prev, { id: Date.now().toString(), role: "user", text: userMsg }]);
-    setAiLoading(true);
-
-    // Simulate high thinking step visualization
-    const steps = [
-      "Accessing cybernetic memory loops...",
-      "Mapping kinetic control laws...",
-      "Optimizing microsecond PID control coefficient values...",
-      "Re-weighting mechanical structural constraints...",
-      "Generating high reasoning synthesis output..."
-    ];
-    setThinkingSteps([]);
-
-    let stepIdx = 0;
-    const stepInterval = setInterval(() => {
-      if (stepIdx < steps.length) {
-        setThinkingSteps(prev => [...prev, steps[stepIdx]]);
-        stepIdx++;
-      } else {
-        clearInterval(stepInterval);
-      }
-    }, 700);
-
-    try {
-      const response = await fetch("/api/ai/think", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMsg,
-          chatHistory: chatLog.map(turn => ({
-            role: turn.role,
-            text: turn.text
-          }))
-        }),
-      });
-
-      const data = await response.json();
-      clearInterval(stepInterval);
-
-      if (response.ok && data.success) {
-        setChatLog(prev => [...prev, { 
-          id: Date.now().toString(), 
-          role: "model", 
-          text: data.text 
-        }]);
-      } else {
-        // Fallback instructions / missing API key
-        setChatLog(prev => [...prev, { 
-          id: Date.now().toString(), 
-          role: "model", 
-          text: data.fallback || `Cognitive core report Error: ${data.error}`
-        }]);
-        if (data.error) {
-          setAiError(data.error);
-        }
-      }
-    } catch (err: any) {
-      clearInterval(stepInterval);
-      setAiError("Connection to AI Core server timed out. Check environment configuration.");
-    } finally {
-      setAiLoading(false);
-    }
-  };
 
   if (!currentUser) {
     return (
@@ -544,6 +471,8 @@ export default function AdminView() {
         </button>
       </header>
 
+      <EventsManager />
+
       {/* Stats row */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-[#18181b] border border-[#27272a] rounded-lg p-6 flex items-center justify-between group cursor-pointer hover:border-[#e8b828]/25 transition-all">
@@ -587,56 +516,56 @@ export default function AdminView() {
 
       {/* Main complex admin section: Toggles + Logs */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left side: Activities logs */}
-        <div className="lg:col-span-8 bg-[#18181b] border border-[#27272a] rounded-xl overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-zinc-800 bg-zinc-900/30 flex justify-between items-center">
-            <div>
-              <h2 className="font-sans text-lg font-bold text-white">Recent Member Activity</h2>
-              <p className="font-mono text-[10px] text-zinc-500 mt-1">Live tracking of robotics lab access and active commits.</p>
+        <div className="lg:col-span-8">
+          <div className="bg-[#18181b] border border-[#27272a] rounded-xl overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-zinc-800 bg-zinc-900/30 flex justify-between items-center">
+              <div>
+                <h2 className="font-sans text-lg font-bold text-white">Recent Member Activity</h2>
+                <p className="font-mono text-[10px] text-zinc-500 mt-1">Live tracking of robotics lab access and active commits.</p>
+              </div>
+              <button 
+                onClick={fetchActivities}
+                className="p-2 border border-zinc-800 hover:border-zinc-700 bg-zinc-950 rounded text-zinc-400 hover:text-white transition-colors"
+                title="Refresh Activities"
+              >
+                <RefreshCcw className={`w-3.5 h-3.5 ${loadingTable ? 'animate-spin' : ''}`} />
+              </button>
             </div>
-            <button 
-              onClick={fetchActivities}
-              className="p-2 border border-zinc-800 hover:border-zinc-700 bg-zinc-950 rounded text-zinc-400 hover:text-white transition-colors"
-              title="Refresh Activities"
-            >
-              <RefreshCcw className={`w-3.5 h-3.5 ${loadingTable ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-zinc-950 border-b border-zinc-900 text-xs font-mono text-zinc-500">
-                <tr>
-                  <th className="p-4 uppercase tracking-widest">ID / Status</th>
-                  <th className="p-4 uppercase tracking-widest">Member Info</th>
-                  <th className="p-4 uppercase tracking-widest">Operational Unit</th>
-                  <th className="p-4 uppercase tracking-widest text-right">Last Sync</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-900 bg-zinc-950/20 text-sm">
-                {activities.map((log) => (
-                  <tr key={log.id} className="hover:bg-zinc-900/40 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${log.status === 'Active' ? 'bg-[#e8b828] animate-pulse' : 'bg-zinc-600'}`}></span>
-                        <span className="font-mono text-xs text-white">{log.id}</span>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="font-sans font-semibold text-zinc-350">{log.name}</div>
-                      <div className="font-sans text-xs text-zinc-500">{log.role}</div>
-                    </td>
-                    <td className="p-4">
-                      <span className="font-mono text-xs text-zinc-400">{log.dept}</span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <span className="font-mono text-xs text-zinc-500">{log.time}</span>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-zinc-950 border-b border-zinc-900 text-xs font-mono text-zinc-500">
+                  <tr>
+                    <th className="p-4 uppercase tracking-widest">ID / Status</th>
+                    <th className="p-4 uppercase tracking-widest">Member Info</th>
+                    <th className="p-4 uppercase tracking-widest">Operational Unit</th>
+                    <th className="p-4 uppercase tracking-widest text-right">Last Sync</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-zinc-900 bg-zinc-950/20 text-sm">
+                  {activities.map((log) => (
+                    <tr key={log.id} className="hover:bg-zinc-900/40 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${log.status === 'Active' ? 'bg-[#e8b828] animate-pulse' : 'bg-zinc-600'}`}></span>
+                          <span className="font-mono text-xs text-white">{log.id}</span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="font-sans font-semibold text-zinc-350">{log.name}</div>
+                        <div className="font-sans text-xs text-zinc-500">{log.role}</div>
+                      </td>
+                      <td className="p-4">
+                        <span className="font-mono text-xs text-zinc-400">{log.dept}</span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <span className="font-mono text-xs text-zinc-500">{log.time}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -725,118 +654,6 @@ export default function AdminView() {
               )}
             </AnimatePresence>
           </div>
-        </div>
-
-      </section>
-
-      {/* Cybernetic High-Thinking AI Lab Terminal Section */}
-      <section className="bg-zinc-950 rounded-xl border border-zinc-900 p-8 space-y-6 relative overflow-hidden blueprint-grid">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#e8b828]/[0.02] rounded-bl-full pointer-events-none"></div>
-
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-6 relative z-10">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 bg-zinc-900 px-3 py-1 rounded border border-zinc-800">
-              <Sparkles className="w-3.5 h-3.5 text-[#e8b828] animate-pulse" />
-              <span className="font-mono text-label-sm text-[#e8b828] uppercase tracking-widest">COGNITIVE AI CORE</span>
-            </div>
-            <h2 className="font-sans text-2xl font-bold text-white">Autonomous Brain Diagnostic Core</h2>
-            <p className="font-sans text-sm text-zinc-400">
-              Direct telemetry client connection to <code className="text-[#e8b828] bg-zinc-900 px-1.5 py-0.5 rounded">gemini-3.1-pro-preview</code> calibrated at <code className="text-[#e8b828]">ThinkingLevel.HIGH</code>.
-            </p>
-          </div>
-
-          {/* Glowing cyber brain animation representation */}
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-xs text-zinc-500 uppercase">Neural Status</span>
-            <div className="relative w-10 h-10 rounded-full border border-[#e8b828]/30 flex items-center justify-center">
-              <div className="absolute inset-1 rounded-full bg-[#e8b828]/10 animate-ping"></div>
-              <div className="w-3.5 h-3.5 rounded-full bg-[#e8b828] shadow shadow-yellow-500"></div>
-            </div>
-          </div>
-        </div>
-
-        {/* AI chat logger display */}
-        <div className="relative z-10 flex flex-col h-[400px] border border-zinc-900 rounded-lg bg-zinc-950/80 overflow-hidden">
-          
-          {/* Chat scroll workspace */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {chatLog.map((turn, i) => (
-              <div 
-                key={i} 
-                className={`flex flex-col max-w-[85%] ${turn.role === 'user' ? 'ml-auto items-end' : 'mr-auto items-start'}`}
-              >
-                <span className="font-mono text-[9px] text-zinc-500 uppercase mb-1">
-                  {turn.role === 'user' ? 'INTELLIGENT COMMAND' : 'COGNITIVE RESOLUTION'}
-                </span>
-                <div 
-                  className={`p-4 rounded-lg text-sm leading-relaxed ${
-                    turn.role === 'user' 
-                      ? 'bg-zinc-800 text-white border border-zinc-700' 
-                      : 'bg-zinc-900/60 text-zinc-300 border border-zinc-850'
-                  }`}
-                >
-                  {turn.text}
-                </div>
-              </div>
-            ))}
-
-            {/* Simulated Reasoning steps visual feedback */}
-            {aiLoading && (
-              <div className="flex flex-col mr-auto max-w-[85%] items-start animate-pulse">
-                <span className="font-mono text-[9px] text-[#e8b828] uppercase mb-1">Reasoning Diagnostics</span>
-                <div className="p-4 rounded-lg text-sm bg-zinc-900/80 border border-[#e8b828]/20 space-y-3 w-full">
-                  <div className="flex items-center gap-2 text-zinc-300">
-                    <span className="w-2 h-2 rounded-full bg-[#e8b828] animate-ping"></span>
-                    <span className="font-mono text-xs font-semibold uppercase tracking-wider">ACTIVE INTELLECT MATRIX COUPLING...</span>
-                  </div>
-                  
-                  {/* Staggered thinking steps */}
-                  <div className="space-y-1.5 pl-4 border-l border-zinc-850 font-mono text-[11px] text-zinc-500">
-                    {thinkingSteps.map((step, sIdx) => (
-                      <div key={sIdx} className="flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3 text-[#e8b828]" />
-                        <span>{step}</span>
-                      </div>
-                    ))}
-                    <div className="flex items-center gap-2 text-zinc-650">
-                      <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-bounce"></span>
-                      <span>Calculating cybernetic logical weights...</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div ref={chatBottomRef}></div>
-          </div>
-
-          {/* Notification box for paid models */}
-          {aiError && (
-            <div className="px-6 py-3 border-t border-red-500/20 bg-red-950/20 text-red-400 text-xs font-sans flex items-center gap-2">
-              <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
-              <span>{aiError}</span>
-            </div>
-          )}
-
-          {/* Chat input block */}
-          <form onSubmit={handleAskAI} className="p-4 bg-zinc-900/50 border-t border-zinc-900 flex gap-2">
-            <input 
-              type="text" 
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              disabled={aiLoading}
-              placeholder="Ask Core Brain e.g., 'Suggest a swarm algorithm strategy' or 'Compute CAD chassis balance'..."
-              className="flex-grow bg-zinc-950 border border-zinc-850 text-white rounded p-3 text-sm focus:outline-none focus:border-[#e8b828] focus:ring-1 focus:ring-[#e8b828]/20 disabled:opacity-50"
-            />
-            <button 
-              type="submit"
-              disabled={aiLoading || !prompt.trim()}
-              className="bg-[#e8b828] hover:brightness-110 text-black px-6 rounded flex items-center justify-center font-mono font-bold text-xs uppercase gap-2 transition-all disabled:opacity-50"
-            >
-              <Send className="w-4 h-4" />
-              <span>COUPLE</span>
-            </button>
-          </form>
         </div>
       </section>
 

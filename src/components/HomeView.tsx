@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, Cpu, Hammer, Microscope, Terminal, Lightbulb, Instagram, Linkedin, Mail, ExternalLink, Wifi, X, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { GALLERY_ITEMS, UPCOMING_EVENTS } from "../data";
 import HeroGallery from "./HeroGallery";
+import { supabase } from "../lib/supabase";
 
 const SOCIAL_NODES = [
   {
@@ -54,6 +55,23 @@ interface HomeViewProps {
 }
 
 export default function HomeView({ onNavigate }: HomeViewProps) {
+  const [events, setEvents] = useState<any[]>(UPCOMING_EVENTS);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase.from("events").select("*").eq("stage", "upcoming").order("date", { ascending: false });
+        if (!error && data) {
+          setEvents(data);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    fetchEvents();
+  }, []);
+
   // Reusable custom hook for ultra-smooth counting up with deceleration animation
   function useSmoothCounter(target: number, isVisible: boolean, duration: number = 1800, delay: number = 0) {
     const [count, setCount] = useState(0);
@@ -285,23 +303,25 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
             ref={exploreScrollRef}
             className="flex gap-6 overflow-x-auto pb-6 no-scrollbar scroll-smooth snap-x snap-mandatory"
           >
-            {UPCOMING_EVENTS.map((event, index) => {
+            {events.length === 0 ? (
+              <div className="text-zinc-500 font-mono text-sm w-full text-center py-10 border border-zinc-800 rounded bg-zinc-900/30">NO UPCOMING EVENTS LOGGED IN DATABASE</div>
+            ) : events.map((event, index) => {
               return (
                 <div 
-                  key={`${event.title}-${index}`}
+                  key={event.id || `${event.title}-${index}`}
                   onClick={() => setSelectedMarqueeCard(event)}
                   className="w-[280px] md:w-[350px] flex-shrink-0 group bg-zinc-900/40 border border-zinc-800/40 p-6 rounded-lg space-y-4 hover:border-[#e8b828]/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer select-none snap-start"
                   title="Click to open event details"
                 >
                   <div className="w-full h-32 rounded-md bg-zinc-800/60 flex items-center justify-center overflow-hidden transition-colors duration-500">
-                    <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={event.image_url || event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-sans text-[#e8b828] text-xl font-semibold transition-colors duration-300 group-hover:text-white">{event.title}</h3>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-[10px] text-[#e8b828] uppercase tracking-widest">{event.date}</span>
                   </div>
                   <p className="font-sans text-body-md text-zinc-400 text-sm leading-relaxed line-clamp-2">
-                    {event.desc}
+                    {event.description || event.desc}
                   </p>
                   <div className="pt-2 flex items-center gap-1.5 text-[10px] font-mono text-[#e8b828] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <span>VIEW EVENT</span>
@@ -462,12 +482,12 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
 
                 {/* Header section with Icon */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 border-b border-zinc-900 pb-5">
-                  <div className="w-16 h-16 rounded overflow-hidden">
-                    <img src={selectedMarqueeCard.image} alt={selectedMarqueeCard.title} className="w-full h-full object-cover" />
+                  <div className="w-16 h-16 rounded overflow-hidden bg-zinc-800">
+                    <img src={selectedMarqueeCard.image_url || selectedMarqueeCard.image} alt={selectedMarqueeCard.title} className="w-full h-full object-cover" />
                   </div>
                   <div className="space-y-1">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-zinc-900 border border-zinc-850 text-[#e8b828] font-mono text-[9px] uppercase tracking-wider font-bold">
-                      {selectedMarqueeCard.status}
+                      {selectedMarqueeCard.status || "Upcoming"}
                     </div>
                     <h2 className="text-2xl font-bold text-white tracking-tight">{selectedMarqueeCard.title}</h2>
                   </div>
@@ -479,7 +499,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                     EVENT DETAILS
                   </span>
                   <p className="text-zinc-300 text-sm leading-relaxed">
-                    {selectedMarqueeCard.desc}
+                    {selectedMarqueeCard.description || selectedMarqueeCard.desc}
                   </p>
                 </div>
 
@@ -503,7 +523,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                     Redirects to VITC Event Hub.<br/>Search for <strong className="text-zinc-200">"{selectedMarqueeCard.title}"</strong> to register.
                   </span>
                   <a 
-                    href={selectedMarqueeCard.registrationLink || "https://eventhubcc.vit.ac.in/EventHub/"}
+                    href={selectedMarqueeCard.registration_link || selectedMarqueeCard.registrationLink || "https://eventhubcc.vit.ac.in/EventHub/"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`w-full font-sans text-sm font-semibold h-12 rounded-md transition-all duration-300 flex items-center justify-center select-none mt-2 ${

@@ -4,7 +4,6 @@ dotenv.config({ path: ".env.local" });
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import ImageKit from "imagekit";
@@ -37,26 +36,6 @@ const imagekit = (ikPublicKey && ikPrivateKey && ikUrlEndpoint)
     })
   : null;
 
-// Initialize Gemini Client
-let aiInstance: any = null;
-function getGenAI() {
-  if (!aiInstance) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.warn("GEMINI_API_KEY is missing. AI Features will show missing key instructions.");
-      return null;
-    }
-    aiInstance = new GoogleGenAI({
-      apiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        }
-      }
-    });
-  }
-  return aiInstance;
-}
 
 // Security: Core Admin list (mirrored from client)
 const ADMIN_EMAILS = [
@@ -161,9 +140,6 @@ app.get("/api/health", async (req, res) => {
       },
       imagekit: {
         configured: !!imagekit
-      },
-      gemini: {
-        configured: !!process.env.GEMINI_API_KEY
       }
     }
   });
@@ -180,61 +156,52 @@ app.get("/api/imagekit/auth", requireAdminAuth, (req, res) => {
   res.json(authParams);
 });
 
-// Cognitive AI Reasoning Endpoint using gemini-3.1-pro-preview with HIGH thinking level
-app.post("/api/ai/think", async (req, res) => {
+
+
+// Events CRUD Endpoints
+app.get("/api/events", async (req, res) => {
+  if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
   try {
-    const { message, chatHistory = [] } = req.body;
-    const ai = getGenAI();
-
-    if (!ai) {
-      return res.status(500).json({ 
-        error: "GEMINI_API_KEY is missing. Please select/add your Gemini API key in AI Studio under Settings > Secrets to enable High Thinking mode.",
-        fallback: "This is a pre-programmed diagnostic simulation because the Gemini workspace secret key is not set. In a real deployment, the Core Autonomous Brain will reason about your query instantly!"
-      });
-    }
-
-    const systemInstruction = 
-      "You are the Core Cognitive Autonomous Brain of the VITC Chennai Robotics Club. " +
-      "You represent the highly technical, physical engineering capabilities combined with cybernetic neural intelligence of the club. " +
-      "Analyze problems with high precision, detail, and scientific rationale. Speak from an advanced, authoritative, yet friendly and helpful perspective. " +
-      "Introduce yourself briefly if asked, and relate your reasoning to mechanical design, electronics development, software kinematics, or control theory wherever relevant.";
-
-    const contents: any[] = [];
-    for (const turn of chatHistory) {
-      contents.push({
-        role: turn.role,
-        parts: [{ text: turn.text }]
-      });
-    }
-
-    contents.push({
-      role: "user",
-      parts: [{ text: message }]
-    });
-
-    console.log("Invoking gemini-3.1-pro-preview with ThinkingLevel.HIGH...");
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
-      contents,
-      config: {
-        systemInstruction,
-        thinkingConfig: {
-          thinkingLevel: ThinkingLevel.HIGH
-        }
-      }
-    });
-
-    res.json({
-      success: true,
-      text: response.text,
-    });
-
+    const { data, error } = await supabase.from("events").select("*").order("created_at", { ascending: false });
+    if (error) throw error;
+    res.json(data);
   } catch (error: any) {
-    console.error("AI Error:", error);
-    res.status(500).json({ 
-      error: error.message || "An error occurred in the Cognitive AI Core.",
-      details: error.stack
-    });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/events", requireAdminAuth, async (req, res) => {
+  if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
+  try {
+    const { data, error } = await supabase.from("events").insert([req.body]).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put("/api/events/:id", requireAdminAuth, async (req, res) => {
+  if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
+  try {
+    const { id } = req.params;
+    const { data, error } = await supabase.from("events").update(req.body).eq("id", id).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete("/api/events/:id", requireAdminAuth, async (req, res) => {
+  if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
+  try {
+    const { id } = req.params;
+    const { error } = await supabase.from("events").delete().eq("id", id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 });
 
