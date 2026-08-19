@@ -497,9 +497,10 @@ async function startServer() {
   });
 }
 
-// Support Vercel serverless functions by exporting the app directly
-if (process.env.VERCEL) {
-  module.exports = app;
-} else {
+// Support Vercel serverless functions & local dev
+if (!process.env.VERCEL) {
   startServer();
 }
+
+export default app;
+
