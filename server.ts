@@ -349,7 +349,7 @@ app.post("/api/certificates/validate", async (req, res) => {
       source: "local"
     });
   } else {
-    res.status(404).json({
+    res.status(200).json({
       found: false,
       message: `No certificate found in cohort ${year} for roll number: ${rollNumber}`
     });
