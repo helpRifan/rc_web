@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from "motion/react";
 import { 
   Mail, Link as LinkIcon, Plus, CheckCircle, ArrowRight, 
   Linkedin, Cpu, Layers, Hammer, BrainCircuit, Code, 
-  GraduationCap, Instagram, X, User, Sparkles, Send, Check 
+  GraduationCap, Instagram, X, User, Sparkles, Send, Check,
+  Crown, ShieldCheck, Briefcase, Megaphone, PenTool, ClipboardList
 } from "lucide-react";
-import { CLUB_MEMBERS, DIVISIONAL_MEMBERS } from "../data";
+import { BOARD_MEMBERS, CORE_MEMBERS, CLUB_MEMBERS } from "../data";
 import { Member } from "../types";
 
 // Faculty coordinator image reference
@@ -19,6 +20,52 @@ const getInitials = (name: string) => {
   }
   return cleanName.slice(0, 2).toUpperCase();
 };
+
+// Department configuration for organized grouping
+const DEPARTMENT_GROUPS = [
+  {
+    id: "Projects",
+    name: "Projects & Robotics",
+    tag: "Engineering & Hardware",
+    icon: <Hammer className="w-4 h-4 text-[#e8b828]" />,
+    desc: "Autonomous rovers, robotic arms, mechanical kinematics, and embedded PCB hardware stacks."
+  },
+  {
+    id: "Web Dev",
+    name: "Technical & Software",
+    tag: "Digital & Telemetry",
+    icon: <Code className="w-4 h-4 text-[#e8b828]" />,
+    desc: "Cloud infrastructure, telemetry streaming, software architecture, and club digital platforms."
+  },
+  {
+    id: "Teaching",
+    name: "Teaching & Mentorship",
+    tag: "Education & Pedagogy",
+    icon: <GraduationCap className="w-4 h-4 text-[#e8b828]" />,
+    desc: "Workshops, junior cohort mentorship, technical bootcamps, and open curriculum development."
+  },
+  {
+    id: "Media and Design",
+    name: "Design & Creative",
+    tag: "Visual & 3D Media",
+    icon: <Sparkles className="w-4 h-4 text-[#e8b828]" />,
+    desc: "Visual branding, 3D CAD renders, promotional media, symposium teasers, and UI/UX design."
+  },
+  {
+    id: "Operations",
+    name: "Management & Operations",
+    tag: "Sprint & Resource Coordination",
+    icon: <Layers className="w-4 h-4 text-[#e8b828]" />,
+    desc: "Logistics pipelines, cross-team sprint sync, event operations, and lab inventory management."
+  },
+  {
+    id: "Marketing and Sponsorship",
+    name: "Outreach & Publicity",
+    tag: "Partnerships & Media",
+    icon: <Send className="w-4 h-4 text-[#e8b828]" />,
+    desc: "Corporate sponsorships, inter-university alliances, public relations, and campus campaigns."
+  }
+];
 
 // Map custom projects and focus structures based on member departments
 const getMemberDetails = (member: Member) => {
@@ -133,187 +180,213 @@ export default function MembersView() {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.8 }}
-        className="space-y-xxl pb-xl"
+        className="space-y-16 pb-xl"
       >
         {/* Header and title */}
         <header className="space-y-4 max-w-3xl">
           <div className="inline-flex items-center gap-2 bg-[#101010] border border-zinc-800 px-3 py-1.5 rounded-sm">
-            <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-[0.2em] font-semibold">Roster Directory</span>
+            <span className="w-2 h-2 rounded-full bg-[#e8b828]"></span>
+            <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-[0.2em] font-semibold">Organizational Hierarchy</span>
           </div>
-          <h1 className="font-sans text-4xl md:text-5xl font-normal text-[#e5e1e4] tracking-[-0.65px]">Core Members</h1>
+          <h1 className="font-sans text-4xl md:text-5xl font-normal text-[#e5e1e4] tracking-[-0.65px]">Club Leadership</h1>
           <p className="font-sans text-base text-zinc-400 leading-relaxed">
-            Meet the researchers, developers, and makers driving VIT Chennai Robotics. Our multidisciplinary specialists synchronize mechanical structures, embedded systems, and machine intelligence.
+            Structured leadership driving innovation across mechanical engineering, embedded hardware, software systems, and campus outreach at VIT Chennai Robotics Club.
           </p>
         </header>
 
-        {/* Faculty Coordinator Spotlight Block */}
-        <motion.section 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.15 }}
-          className="relative overflow-hidden rounded-md border border-zinc-800 bg-[#101010] p-6 md:p-10 hover:border-zinc-700 transition-colors duration-300 group"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-            
-            {/* Column A: Faculty Coordinator Bio Card */}
-            <div className="lg:col-span-4 flex flex-col items-center text-center space-y-4 lg:border-r lg:border-zinc-800 lg:pr-8">
-              <div className="relative">
-                {/* Profile Avatar Frame with custom borders */}
-                <div className="relative w-36 h-36 rounded-md overflow-hidden border border-zinc-800 bg-[#0c0c0e] flex items-center justify-center group">
-                  <img src="/fc.jpg" alt="Dr. Arockia Selvakumar A." className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <h2 className="font-sans text-xl font-medium text-[#e5e1e4] tracking-[-0.65px] leading-tight">
-                  Dr. Arockia Selvakumar A.
-                </h2>
-                <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-zinc-400 bg-[#0c0c0e] border border-zinc-800 px-3 py-1 rounded-sm uppercase tracking-[0.1em] font-semibold">
-                  Faculty Coordinator
-                </span>
-                <p className="font-mono text-[9px] text-zinc-500 tracking-[0.2em] mt-1 font-semibold">
-                  VIT CHENNAI ROBOTICS CLUB
-                </p>
-              </div>
-            </div>
-
-            {/* Column B: Statement Text & Actions */}
-            <div className="lg:col-span-8 space-y-6 flex flex-col justify-between h-full">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <span className="h-[1px] w-8 bg-zinc-800"></span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-semibold">Coordinator Address</span>
-                  <span className="h-[1px] flex-grow bg-zinc-800"></span>
-                </div>
-
-                <blockquote className="font-sans text-sm sm:text-base text-zinc-400 leading-relaxed italic relative pl-4 border-l border-zinc-800">
-                  "As the faculty coordinator of the Robotics Club, it is my privilege to introduce our dynamic and vibrant community. Our club is a hub of creativity, innovation, and collaborative learning. We provide a platform for students to explore their passion for robotics, expand their technical skills, and cultivate a problem-solving mindset. Through engaging workshops, exciting projects, and competitive events, we empower our members to excel."
-                </blockquote>
-              </div>
-
-              <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-end gap-4 border-t border-zinc-800 border-dashed">
-                <motion.a 
-                  href="https://chennai.vit.ac.in/member/dr-arockia-selvakumar/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="inline-flex items-center justify-center gap-2 font-sans text-sm text-[#101010] bg-[#e8b828] hover:bg-yellow-400 px-6 py-2.5 rounded-md font-semibold transition-colors"
-                >
-                  <span>Know More</span>
-                  <ArrowRight className="w-4 h-4" />
-                </motion.a>
-              </div>
-            </div>
+        {/* ========================================================================= */}
+        {/* TIER 1: FACULTY COORDINATOR (TOP OF HIERARCHY) */}
+        {/* ========================================================================= */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[10px] text-[#e8b828] bg-[#e8b828]/10 border border-[#e8b828]/30 px-2.5 py-0.5 rounded-sm uppercase tracking-[0.15em] font-semibold">
+              Level 01
+            </span>
+            <span className="font-mono text-xs text-zinc-400 uppercase tracking-[0.15em] font-medium">Faculty Leadership</span>
+            <span className="h-[1px] flex-grow bg-zinc-800/80"></span>
           </div>
-        </motion.section>
 
-        {/* Grid mapping core members (Now fully interactive with modal previews!) */}
-        <section className="space-y-6">
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="relative overflow-hidden rounded-md border border-zinc-800 bg-[#101010] p-6 md:p-10 hover:border-zinc-700 transition-colors duration-300 group"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+              
+              {/* Column A: Faculty Coordinator Bio Card */}
+              <div className="lg:col-span-4 flex flex-col items-center text-center space-y-4 lg:border-r lg:border-zinc-800 lg:pr-8">
+                <div className="relative">
+                  <div className="relative w-36 h-36 rounded-md overflow-hidden border border-zinc-800 bg-[#0c0c0e] flex items-center justify-center group shadow-md">
+                    <img src="/fc.jpg" alt="Dr. Arockia Selvakumar A." className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <h2 className="font-sans text-xl font-medium text-[#e5e1e4] tracking-[-0.65px] leading-tight">
+                    Dr. Arockia Selvakumar A.
+                  </h2>
+                  <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-[#e8b828] bg-[#e8b828]/10 border border-[#e8b828]/30 px-3 py-1 rounded-sm uppercase tracking-[0.1em] font-semibold">
+                    Faculty Coordinator
+                  </span>
+                  <p className="font-mono text-[9px] text-zinc-500 tracking-[0.2em] mt-1 font-semibold">
+                    VIT CHENNAI ROBOTICS CLUB
+                  </p>
+                </div>
+              </div>
+
+              {/* Column B: Statement Text & Actions */}
+              <div className="lg:col-span-8 space-y-6 flex flex-col justify-between h-full">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className="h-[1px] w-8 bg-zinc-800"></span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-semibold">Coordinator Address</span>
+                    <span className="h-[1px] flex-grow bg-zinc-800"></span>
+                  </div>
+
+                  <blockquote className="font-sans text-sm sm:text-base text-zinc-400 leading-relaxed italic relative pl-4 border-l border-zinc-800">
+                    "As the faculty coordinator of the Robotics Club, it is my privilege to introduce our dynamic and vibrant community. Our club is a hub of creativity, innovation, and collaborative learning. We provide a platform for students to explore their passion for robotics, expand their technical skills, and cultivate a problem-solving mindset. Through engaging workshops, exciting projects, and competitive events, we empower our members to excel."
+                  </blockquote>
+                </div>
+
+                <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-end gap-4 border-t border-zinc-800 border-dashed">
+                  <motion.a 
+                    href="https://chennai.vit.ac.in/member/dr-arockia-selvakumar/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="inline-flex items-center justify-center gap-2 font-sans text-sm text-[#101010] bg-[#e8b828] hover:bg-yellow-400 px-6 py-2.5 rounded-md font-semibold transition-colors"
+                  >
+                    <span>Know More</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.a>
+                </div>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Hierarchy Connector Stem */}
+          <div className="flex flex-col items-center justify-center py-2">
+            <div className="w-[2px] h-8 bg-gradient-to-b from-zinc-700 to-[#e8b828]/60"></div>
+            <div className="w-3 h-3 rounded-full bg-[#101010] border-2 border-[#e8b828] -mt-1 shadow-[0_0_8px_rgba(232,184,40,0.4)]"></div>
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* TIER 2: THE EXECUTIVE BOARD */}
+        {/* ========================================================================= */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[10px] text-[#e8b828] bg-[#e8b828]/10 border border-[#e8b828]/30 px-2.5 py-0.5 rounded-sm uppercase tracking-[0.15em] font-semibold">
+              Level 02
+            </span>
+            <span className="font-mono text-xs text-zinc-400 uppercase tracking-[0.15em] font-medium">The Executive Board</span>
+            <span className="h-[1px] flex-grow bg-zinc-800/80"></span>
+          </div>
+
           <div className="space-y-2">
-            <span className="font-mono text-[10px] text-[#e8b828] uppercase tracking-[0.2em] font-semibold block">Club Management</span>
-            <h2 className="font-sans text-3xl font-normal text-[#e5e1e4] tracking-[-0.65px]">Core Executive Officers</h2>
+            <h2 className="font-sans text-3xl font-normal text-[#e5e1e4] tracking-[-0.65px]">The Board</h2>
+            <p className="font-sans text-sm text-zinc-400 max-w-2xl">
+              Steering strategic governance, institutional liaison, and multi-disciplinary operational roadmaps for the tenure.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {CLUB_MEMBERS.map((member, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {BOARD_MEMBERS.map((member, index) => (
               <motion.div
                 key={member.name}
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: index * 0.08 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
                 onClick={() => setSelectedMember(member)}
-                className="group relative bg-[#101010] border border-zinc-800 hover:border-zinc-700 rounded-md p-8 flex flex-col items-center text-center overflow-hidden transition-all duration-300 cursor-pointer"
+                className="group relative bg-[#101010] border border-zinc-800 hover:border-[#e8b828]/60 rounded-md p-8 flex flex-col items-center text-center overflow-hidden transition-all duration-300 cursor-pointer shadow-sm hover:shadow-lg"
               >
+                {/* Board Badge */}
+                <div className="absolute top-4 right-4 flex items-center gap-1 bg-[#e8b828]/10 border border-[#e8b828]/30 px-2 py-0.5 rounded text-[9px] font-mono text-[#e8b828] uppercase font-bold">
+                  <Crown className="w-3 h-3" />
+                  <span>Board</span>
+                </div>
+
                 {/* Profile Avatar Frame */}
-                <div className="relative w-28 h-28 rounded-md overflow-hidden mb-6 border border-zinc-800 group-hover:border-zinc-700 transition-colors bg-[#0c0c0e] flex items-center justify-center">
+                <div className="relative w-28 h-28 rounded-md overflow-hidden mb-6 border border-zinc-800 group-hover:border-[#e8b828]/50 transition-colors bg-[#0c0c0e] flex items-center justify-center">
                   <div className="w-full h-full flex flex-col items-center justify-center text-[#e8b828] font-mono select-none px-4 text-center">
                     <span className="text-2xl font-medium tracking-[-0.65px]">{getInitials(member.name)}</span>
                   </div>
                 </div>
 
                 {/* Member Details */}
-                <div className="space-y-2 flex-grow flex flex-col justify-between">
+                <div className="space-y-2 flex-grow flex flex-col justify-between w-full">
                   <div className="space-y-2">
-                    <h3 className="font-sans text-[#e5e1e4] text-lg font-medium tracking-[-0.65px] group-hover:text-[#e8b828] transition-colors">{member.name}</h3>
-                    <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-zinc-400 bg-[#0c0c0e] border border-zinc-800 px-3 py-1 rounded-sm uppercase tracking-[0.1em] font-semibold">
-                      {member.role}
-                    </span>
+                    <h3 className="font-sans text-[#e5e1e4] text-xl font-medium tracking-[-0.65px] group-hover:text-[#e8b828] transition-colors">
+                      {member.name}
+                    </h3>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#e8b828] bg-[#0c0c0e] border border-zinc-800 px-3 py-1 rounded-sm uppercase tracking-[0.1em] font-semibold">
+                        {member.role}
+                      </span>
+                    </div>
                   </div>
-                  <p className="font-sans text-sm text-zinc-400 leading-relaxed mt-4">
+                  <p className="font-sans text-sm text-zinc-400 leading-relaxed mt-4 line-clamp-3">
                     {member.bio}
                   </p>
                 </div>
 
                 {/* Quick click details hint */}
-                <div className="mt-4 pt-1 font-mono text-[9px] text-zinc-500 uppercase tracking-[0.1em] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1">
-                  <span>View Details</span>
-                  <Plus className="w-3 h-3" />
+                <div className="mt-6 pt-3 border-t border-zinc-900 w-full font-mono text-[9px] text-zinc-500 uppercase tracking-[0.1em] group-hover:text-[#e8b828] transition-colors flex items-center justify-center gap-1">
+                  <span>Executive Profile</span>
+                  <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                 </div>
               </motion.div>
             ))}
-
-            {/* Dynamic CTA Card - "Join the Core" */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: CLUB_MEMBERS.length * 0.08 }}
-              onClick={() => setCohortFormOpen(true)}
-              className="group border border-zinc-800 border-dashed bg-[#101010] rounded-md p-8 flex flex-col items-center justify-center text-center space-y-4 hover:border-zinc-700 hover:bg-[#1a1a1a] transition-all duration-300 cursor-pointer"
-            >
-              <div className="w-14 h-14 rounded-md bg-[#0c0c0e] flex items-center justify-center text-zinc-500 group-hover:text-[#e8b828] transition-colors duration-300 border border-zinc-800">
-                <Plus className="w-6 h-6" />
-              </div>
-
-              <div className="space-y-2 max-w-[240px]">
-                <h3 className="font-sans text-[#e5e1e4] text-base font-medium tracking-[-0.65px]">Join the Core</h3>
-                <p className="font-sans text-zinc-400 text-sm leading-relaxed">
-                  We are constantly seeking exceptional student brains to lead customized mechanical and software operations.
-                </p>
-              </div>
-
-              <button 
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setCohortFormOpen(true); }}
-                className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.1em] font-semibold group-hover:text-[#e8b828] transition-colors"
-              >
-                Apply for Cohort &rarr;
-              </button>
-            </motion.div>
           </div>
-        </section>
 
-        {/* SECTION: Division Specialists, Committees & Alumni */}
-        <section className="space-y-8 pt-16 border-t border-dashed border-zinc-800">
+          {/* Hierarchy Connector Stem */}
+          <div className="flex flex-col items-center justify-center py-2">
+            <div className="w-[2px] h-8 bg-gradient-to-b from-zinc-700 to-[#e8b828]/60"></div>
+            <div className="w-3 h-3 rounded-full bg-[#101010] border-2 border-[#e8b828] -mt-1 shadow-[0_0_8px_rgba(232,184,40,0.4)]"></div>
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* TIER 3: CORE MEMBERS CATEGORIZED BY DEPARTMENT */}
+        {/* ========================================================================= */}
+        <section className="space-y-10">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div className="space-y-2">
-              <span className="font-mono text-[10px] text-[#e8b828] uppercase tracking-[0.2em] font-semibold block">Club Subdivisions</span>
-              <h2 className="font-sans text-3xl font-normal text-[#e5e1e4] tracking-[-0.65px]">Functional Divisions</h2>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-[10px] text-[#e8b828] bg-[#e8b828]/10 border border-[#e8b828]/30 px-2.5 py-0.5 rounded-sm uppercase tracking-[0.15em] font-semibold">
+                  Level 03
+                </span>
+                <span className="font-mono text-xs text-zinc-400 uppercase tracking-[0.15em] font-medium">Departmental Leadership</span>
+                <span className="h-[1px] w-12 bg-zinc-800/80"></span>
+              </div>
+              <h2 className="font-sans text-3xl font-normal text-[#e5e1e4] tracking-[-0.65px]">Core Team by Department</h2>
               <p className="font-sans text-sm text-zinc-400 max-w-xl">
-                Our operations span across dedicated domains including projects, teaching, web development, media, operations, and marketing.
+                Specialized heads and leads driving engineering research, software stacks, design aesthetics, sprint operations, and external outreach.
               </p>
             </div>
 
-            {/* Tab Pill Selectors */}
+            {/* Department Filter Pills */}
             <div className="flex flex-wrap gap-2 bg-[#0c0c0e] p-1.5 rounded-md border border-zinc-800 max-w-full">
               {[
-                { id: "All", name: "All", icon: <Layers className="w-3.5 h-3.5" /> },
-                { id: "Teaching", name: "Teaching", icon: <GraduationCap className="w-3.5 h-3.5" /> },
+                { id: "All", name: "All Divisions", icon: <Layers className="w-3.5 h-3.5" /> },
                 { id: "Projects", name: "Projects", icon: <Hammer className="w-3.5 h-3.5" /> },
-                { id: "Web Dev", name: "Web Dev", icon: <Code className="w-3.5 h-3.5" /> },
-                { id: "Media and Design", name: "Media", icon: <Sparkles className="w-3.5 h-3.5" /> },
-                { id: "Operations", name: "Operations", icon: <Layers className="w-3.5 h-3.5" /> },
-                { id: "Marketing and Sponsorship", name: "Marketing", icon: <Send className="w-3.5 h-3.5" /> },
+                { id: "Web Dev", name: "Technical", icon: <Code className="w-3.5 h-3.5" /> },
+                { id: "Teaching", name: "Teaching", icon: <GraduationCap className="w-3.5 h-3.5" /> },
+                { id: "Media and Design", name: "Design", icon: <Sparkles className="w-3.5 h-3.5" /> },
+                { id: "Operations", name: "Management", icon: <Layers className="w-3.5 h-3.5" /> },
+                { id: "Marketing and Sponsorship", name: "Outreach", icon: <Send className="w-3.5 h-3.5" /> },
               ].map((tab) => {
                 const isActive = selectedDept === tab.id;
                 const count = tab.id === "All" 
-                  ? DIVISIONAL_MEMBERS.length 
-                  : DIVISIONAL_MEMBERS.filter(m => m.department === tab.id).length;
+                  ? CORE_MEMBERS.length 
+                  : CORE_MEMBERS.filter(m => m.department === tab.id).length;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setSelectedDept(tab.id)}
-                    className={`relative flex items-center gap-2 px-3.5 py-2 rounded-sm font-sans text-sm transition-all duration-300 ${
+                    className={`relative flex items-center gap-2 px-3.5 py-2 rounded-sm font-sans text-sm transition-all duration-300 cursor-pointer ${
                       isActive 
                         ? "text-[#e5e1e4] font-medium bg-[#101010] border border-zinc-800" 
                         : "text-zinc-500 hover:text-[#e5e1e4]"
@@ -330,66 +403,124 @@ export default function MembersView() {
             </div>
           </div>
 
-          {/* Technical committee cards grid */}
-          <motion.div 
-            layout
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
-            <AnimatePresence mode="popLayout">
-              {DIVISIONAL_MEMBERS.filter(member => selectedDept === "All" || member.department === selectedDept).map((member, index) => (
-                <motion.div
-                  layout
-                  key={member.name}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3 }}
-                  onClick={() => setSelectedMember(member)}
-                  className="group relative bg-[#101010] border border-zinc-800 rounded-md p-6 flex flex-col justify-between hover:border-zinc-700 transition-colors duration-300 cursor-pointer min-h-[290px]"
-                >
-                  <div className="space-y-4">
-                    {/* Top line with Avatar and subsystem tag */}
-                    <div className="flex items-center gap-4">
-                      <div className="relative shrink-0">
-                        <div className="relative w-14 h-14 rounded-md overflow-hidden border border-zinc-800 bg-[#0c0c0e] flex items-center justify-center">
-                          <div className="w-full h-full flex flex-col items-center justify-center text-[#e8b828] font-mono select-none px-1 text-center">
-                            <span className="text-sm font-medium tracking-[-0.65px]">{getInitials(member.name)}</span>
-                          </div>
-                        </div>
-                      </div>
+          {/* Department-Wise Grouped Display */}
+          <div className="space-y-12">
+            {DEPARTMENT_GROUPS
+              .filter(group => selectedDept === "All" || selectedDept === group.id)
+              .map((group) => {
+                const groupMembers = CORE_MEMBERS.filter(m => m.department === group.id);
+                if (groupMembers.length === 0) return null;
 
-                      <div className="space-y-1 min-w-0">
-                        <h4 className="font-sans text-[#e5e1e4] text-sm font-medium tracking-[-0.65px] truncate group-hover:text-[#e8b828] transition-colors">
-                          {member.name}
-                        </h4>
-                        <p className="font-mono text-[9px] text-zinc-500 uppercase tracking-[0.1em] truncate font-semibold">
-                          {member.role}
-                        </p>
-                        <div className="inline-block font-mono text-[9px] bg-[#0c0c0e] border border-zinc-800 px-2 py-0.5 rounded-sm text-zinc-400 capitalize truncate max-w-[130px]">
-                          {member.subsystem || "Core Contributor"}
+                return (
+                  <div key={group.id} className="space-y-6">
+                    {/* Department Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-[#101010] border border-zinc-800 rounded-md">
+                          {group.icon}
+                        </div>
+                        <div>
+                          <h3 className="font-sans text-xl font-medium text-[#e5e1e4] tracking-[-0.5px]">
+                            {group.name}
+                          </h3>
+                          <p className="font-mono text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">
+                            {group.tag} &middot; {groupMembers.length} {groupMembers.length === 1 ? "Member" : "Members"}
+                          </p>
                         </div>
                       </div>
+                      <p className="font-sans text-xs text-zinc-400 max-w-md hidden md:block text-right">
+                        {group.desc}
+                      </p>
                     </div>
 
-                    {/* Bio statement */}
-                    <p className="font-sans text-sm text-zinc-400 leading-relaxed line-clamp-3 min-h-[60px] italic border-l border-zinc-800 pl-3">
-                      "{member.bio}"
-                    </p>
-                  </div>
+                    {/* Member Cards Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {groupMembers.map((member, idx) => (
+                        <motion.div
+                          key={member.name}
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: idx * 0.06 }}
+                          onClick={() => setSelectedMember(member)}
+                          className="group relative bg-[#101010] border border-zinc-800 hover:border-zinc-700 rounded-md p-6 flex flex-col justify-between transition-all duration-300 cursor-pointer min-h-[280px]"
+                        >
+                          <div className="space-y-4">
+                            {/* Top Avatar & Role Info */}
+                            <div className="flex items-center gap-4">
+                              <div className="relative shrink-0">
+                                <div className="relative w-16 h-16 rounded-md overflow-hidden border border-zinc-800 bg-[#0c0c0e] flex items-center justify-center">
+                                  <div className="w-full h-full flex flex-col items-center justify-center text-[#e8b828] font-mono select-none px-1 text-center">
+                                    <span className="text-base font-medium tracking-[-0.65px]">{getInitials(member.name)}</span>
+                                  </div>
+                                </div>
+                              </div>
 
-                  {/* Bottom line: Section indicator */}
-                  <div className="flex items-center justify-between pt-4 mt-4 border-t border-dashed border-zinc-800 text-[10px] font-mono text-zinc-600 uppercase tracking-[0.1em]">
-                    <span>
-                      {member.department === "Alumni & Advisory" ? "⚡ ADVISORY" : `⚓ ${member.department}`}
-                    </span>
-                    <span className="text-[#e8b828] opacity-0 group-hover:opacity-100 transition-opacity">
-                      Details &rarr;
-                    </span>
+                              <div className="space-y-1 min-w-0 flex-grow">
+                                <h4 className="font-sans text-[#e5e1e4] text-base font-medium tracking-[-0.65px] truncate group-hover:text-[#e8b828] transition-colors">
+                                  {member.name}
+                                </h4>
+                                <p className="font-mono text-[10px] text-[#e8b828] uppercase tracking-[0.1em] font-semibold">
+                                  {member.role}
+                                </p>
+                                <div className="inline-block font-mono text-[9px] bg-[#0c0c0e] border border-zinc-800 px-2 py-0.5 rounded-sm text-zinc-400 truncate max-w-full">
+                                  {member.subsystem || "Core Member"}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Bio */}
+                            <p className="font-sans text-xs sm:text-sm text-zinc-400 leading-relaxed line-clamp-3 italic border-l border-zinc-800 pl-3">
+                              "{member.bio}"
+                            </p>
+                          </div>
+
+                          {/* Card Footer */}
+                          <div className="flex items-center justify-between pt-4 mt-4 border-t border-dashed border-zinc-800 text-[10px] font-mono text-zinc-500 uppercase tracking-[0.1em]">
+                            <span className="text-zinc-500">
+                              {member.department}
+                            </span>
+                            <span className="text-[#e8b828] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                              <span>Profile</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </span>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                );
+              })}
+
+            {/* Dynamic CTA Card - "Join the Core" */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              onClick={() => setCohortFormOpen(true)}
+              className="group border border-zinc-800 border-dashed bg-[#101010] rounded-md p-8 flex flex-col md:flex-row items-center justify-between text-center md:text-left gap-6 hover:border-zinc-700 hover:bg-[#151515] transition-all duration-300 cursor-pointer"
+            >
+              <div className="flex flex-col md:flex-row items-center gap-5">
+                <div className="w-14 h-14 rounded-md bg-[#0c0c0e] flex items-center justify-center text-zinc-500 group-hover:text-[#e8b828] transition-colors duration-300 border border-zinc-800 shrink-0">
+                  <Plus className="w-6 h-6" />
+                </div>
+
+                <div className="space-y-1 max-w-xl">
+                  <h3 className="font-sans text-[#e5e1e4] text-lg font-medium tracking-[-0.65px]">Join the Core Leadership</h3>
+                  <p className="font-sans text-zinc-400 text-sm leading-relaxed">
+                    We are constantly seeking exceptional student brains to lead customized mechanical, software, and operational pipelines.
+                  </p>
+                </div>
+              </div>
+
+              <button 
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setCohortFormOpen(true); }}
+                className="font-mono text-xs text-[#101010] bg-[#e8b828] hover:bg-yellow-400 font-semibold px-5 py-2.5 rounded-md transition-colors shrink-0 uppercase tracking-wider cursor-pointer"
+              >
+                Apply for Cohort &rarr;
+              </button>
+            </motion.div>
+          </div>
         </section>
       </motion.div>
 

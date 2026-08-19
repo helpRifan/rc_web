@@ -1,7 +1,6 @@
 import { Member, DeploymentEvent, ArchiveItem } from "./types";
 
-export const CLUB_MEMBERS: Member[] = [
-  // BOARD
+export const BOARD_MEMBERS: Member[] = [
   {
     name: "Ihsan",
     role: "Vice-Chair",
@@ -37,33 +36,11 @@ export const CLUB_MEMBERS: Member[] = [
     department: "Operations",
     departmentId: "operations",
     subsystem: "Executive Operations"
-  },
+  }
+];
 
-  // CORE HEADS & LEADS
-  {
-    name: "Pranjal",
-    role: "Technical Head",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
-    email: "pranjal.2023@vitstudent.ac.in",
-    github: "github.com/pranjal-tech",
-    bio: "Technical Head leading software infrastructure, telemetry pipelines, and computational architecture.",
-    instagram: "instagram.com/pranjal_tech",
-    department: "Web Dev",
-    departmentId: "webdev",
-    subsystem: "Full-Stack & Systems"
-  },
-  {
-    name: "Aurka",
-    role: "Teaching Lead",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
-    email: "aurka.2023@vitstudent.ac.in",
-    github: "github.com/aurka-teaching",
-    bio: "Teaching Lead heading hands-on workshops, technical curricula, and embedded systems mentorship.",
-    instagram: "instagram.com/aurka_teaching",
-    department: "Teaching",
-    departmentId: "teaching",
-    subsystem: "Curriculum & Mentorship"
-  },
+export const CORE_MEMBERS: Member[] = [
+  // PROJECTS
   {
     name: "Karthik",
     role: "Projects Head",
@@ -100,6 +77,36 @@ export const CLUB_MEMBERS: Member[] = [
     departmentId: "projects",
     subsystem: "Embedded Systems & PCB"
   },
+
+  // TECHNICAL / WEB DEV
+  {
+    name: "Pranjal",
+    role: "Technical Head",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
+    email: "pranjal.2023@vitstudent.ac.in",
+    github: "github.com/pranjal-tech",
+    bio: "Technical Head leading software infrastructure, telemetry pipelines, and computational architecture.",
+    instagram: "instagram.com/pranjal_tech",
+    department: "Web Dev",
+    departmentId: "webdev",
+    subsystem: "Full-Stack & Systems"
+  },
+
+  // TEACHING
+  {
+    name: "Aurka",
+    role: "Teaching Lead",
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+    email: "aurka.2023@vitstudent.ac.in",
+    github: "github.com/aurka-teaching",
+    bio: "Teaching Lead heading hands-on workshops, technical curricula, and embedded systems mentorship.",
+    instagram: "instagram.com/aurka_teaching",
+    department: "Teaching",
+    departmentId: "teaching",
+    subsystem: "Curriculum & Mentorship"
+  },
+
+  // DESIGN & CREATIVE
   {
     name: "Basil",
     role: "Design / Creative Head",
@@ -124,30 +131,8 @@ export const CLUB_MEMBERS: Member[] = [
     departmentId: "media",
     subsystem: "UI/UX & Visual Media"
   },
-  {
-    name: "Gurudeep",
-    role: "Outreach Head",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=300",
-    email: "gurudeep.2023@vitstudent.ac.in",
-    github: "github.com/gurudeep-outreach",
-    bio: "Outreach Head spearheading corporate sponsorships, external partnerships, and industrial linkages.",
-    instagram: "instagram.com/gurudeep_outreach",
-    department: "Marketing and Sponsorship",
-    departmentId: "marketing",
-    subsystem: "Corporate Sponsorships"
-  },
-  {
-    name: "Madhava",
-    role: "Outreach Lead",
-    image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=300",
-    email: "madhava.2023@vitstudent.ac.in",
-    github: "github.com/madhava-outreach",
-    bio: "Outreach Lead fostering collaborative alliances with academic institutions and robotics consortiums.",
-    instagram: "instagram.com/madhava_outreach",
-    department: "Marketing and Sponsorship",
-    departmentId: "marketing",
-    subsystem: "Industrial Alliances"
-  },
+
+  // MANAGEMENT & OPERATIONS
   {
     name: "Goutham",
     role: "Management Head",
@@ -184,6 +169,32 @@ export const CLUB_MEMBERS: Member[] = [
     departmentId: "operations",
     subsystem: "Supply Chain & Lab Logistics"
   },
+
+  // OUTREACH & PUBLICITY
+  {
+    name: "Gurudeep",
+    role: "Outreach Head",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=300",
+    email: "gurudeep.2023@vitstudent.ac.in",
+    github: "github.com/gurudeep-outreach",
+    bio: "Outreach Head spearheading corporate sponsorships, external partnerships, and industrial linkages.",
+    instagram: "instagram.com/gurudeep_outreach",
+    department: "Marketing and Sponsorship",
+    departmentId: "marketing",
+    subsystem: "Corporate Sponsorships"
+  },
+  {
+    name: "Madhava",
+    role: "Outreach Lead",
+    image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=300",
+    email: "madhava.2023@vitstudent.ac.in",
+    github: "github.com/madhava-outreach",
+    bio: "Outreach Lead fostering collaborative alliances with academic institutions and robotics consortiums.",
+    instagram: "instagram.com/madhava_outreach",
+    department: "Marketing and Sponsorship",
+    departmentId: "marketing",
+    subsystem: "Industrial Alliances"
+  },
   {
     name: "Ashton",
     role: "Publicity Head",
@@ -209,6 +220,8 @@ export const CLUB_MEMBERS: Member[] = [
     subsystem: "Community Outreach & Media"
   }
 ];
+
+export const CLUB_MEMBERS: Member[] = [...BOARD_MEMBERS, ...CORE_MEMBERS];
 
 export const UPCOMING_EVENTS: DeploymentEvent[] = [
   {
