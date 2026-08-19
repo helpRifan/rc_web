@@ -6,7 +6,7 @@ import {
   Sparkles, Send, Eye, ShieldCheck, Database,
   Lock, EyeOff, Fingerprint, LogOut, KeyRound, Mail
 } from "lucide-react";
-import { CLUB_MEMBERS, DIVISIONAL_MEMBERS } from "../data";
+import { CLUB_MEMBERS, DIVISIONAL_MEMBERS, UPCOMING_EVENTS } from "../data";
 import { Member, ActivityLog } from "../types";
 import { supabase, signInWithGoogle, signOut, isAuthorizedStudentEmail, isClubAdmin } from "../lib/supabase";
 
@@ -567,8 +567,8 @@ export default function AdminView() {
         <div className="bg-[#18181b] border border-[#27272a] rounded-lg p-6 flex items-center justify-between group cursor-pointer hover:border-[#e8b828]/25 transition-all">
           <div className="space-y-1">
             <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest block">Upcoming Events</span>
-            <div className="font-mono text-3xl font-bold text-white">03</div>
-            <span className="font-mono text-[10px] text-zinc-400">Locked: RoboWars 2024</span>
+            <div className="font-mono text-3xl font-bold text-white">{String(UPCOMING_EVENTS.length).padStart(2, '0')}</div>
+            <span className="font-mono text-[10px] text-zinc-400 truncate w-32">Next: {UPCOMING_EVENTS[0]?.title || "None"}</span>
           </div>
           <Calendar className="w-10 h-10 text-[#e8b828]/25" />
         </div>

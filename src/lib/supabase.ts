@@ -23,7 +23,7 @@ export const ADMIN_EMAILS: string[] = [
   "madhava.2023@vitstudent.ac.in",
   "goutham.2023@vitstudent.ac.in",
   "akshita.2023@vitstudent.ac.in",
-  "aditya.2023@vitstudent.ac.in",
+  "aditya.kumarsahu2025@vitstudent.ac.in",
   "ashton.2023@vitstudent.ac.in",
   "daksh.2023@vitstudent.ac.in",
   "robotics.club@vit.ac.in",
