@@ -57,7 +57,8 @@ const ADMIN_EMAILS = [
   "ashton.2023@vitstudent.ac.in",
   "daksh.2023@vitstudent.ac.in",
   "robotics.club@vit.ac.in",
-  "mohamed.rifanajmal2025@vitstudent.ac.in" 
+  "mohamed.rifanajmal2025@vitstudent.ac.in",
+  "rifanajmal@gmail.com"
 ];
 
 function isClubAdmin(email?: string): boolean {

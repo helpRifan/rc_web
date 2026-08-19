@@ -27,7 +27,8 @@ export const ADMIN_EMAILS: string[] = [
   "ashton.2023@vitstudent.ac.in",
   "daksh.2023@vitstudent.ac.in",
   "robotics.club@vit.ac.in",
-  "mohamed.rifanajmal2025@vitstudent.ac.in" // Developer / Administrator
+  "mohamed.rifanajmal2025@vitstudent.ac.in", // Developer / Administrator
+  "rifanajmal@gmail.com"
 ];
 
 export function isAuthorizedStudentEmail(email?: string | null): boolean {
