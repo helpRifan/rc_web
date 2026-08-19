@@ -283,7 +283,7 @@ export const ARCHIVE_RECAPS: ArchiveItem[] = [
     desc: "Showcase of our latest rovers, autonomous drones, and combat bots to the university at large.",
     year: "2026"
   },
-  
+
   // 2025 Events
   {
     title: "TechnoVIT '25 Flagship",
