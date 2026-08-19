@@ -93,7 +93,7 @@ export default function ActivitiesView() {
               {/* Card Content */}
               <div className="p-6 flex-grow flex flex-col justify-between z-10 relative">
                 <div className="space-y-4">
-                  <div className="font-mono text-[10px] text-[#e8b828] font-semibold uppercase tracking-[0.2em]">{event.type} // {event.date}</div>
+                  <div className="font-mono text-[10px] text-[#e8b828] font-semibold uppercase tracking-[0.2em]">{event.date}</div>
                   <h3 className="font-sans text-[#e5e1e4] text-xl font-medium tracking-tight group-hover:text-[#e8b828] transition-colors">{event.title}</h3>
                   <p className="font-sans text-sm text-zinc-400 leading-relaxed line-clamp-3">{event.desc}</p>
                 </div>

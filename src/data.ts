@@ -226,7 +226,6 @@ export const CLUB_MEMBERS: Member[] = [...BOARD_MEMBERS, ...CORE_MEMBERS];
 export const UPCOMING_EVENTS: DeploymentEvent[] = [
   {
     title: "Roborace",
-    type: "TechnoVIT '26 Flagship",
     date: "TechnoVIT '26",
     image: "/gallery/8.jpg",
     desc: "High-velocity autonomous and remote-controlled robotic sprint across specialized obstacle chicanes, steep banked turns, and precision track sections.",
@@ -235,7 +234,6 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
   },
   {
     title: "Line Follower",
-    type: "TechnoVIT '26 Autonomous",
     date: "TechnoVIT '26",
     image: "/gallery/7.jpg",
     desc: "Autonomous navigation battle testing high-speed infrared optical arrays, PID algorithmic loop convergence, and micro-second path tracking precision.",
@@ -244,7 +242,6 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
   },
   {
     title: "Robosoccer",
-    type: "TechnoVIT '26 Arena Combat",
     date: "TechnoVIT '26",
     image: "/gallery/3.jpg",
     desc: "Dynamic robotic soccer showdown featuring custom pneumatic kicking levers, omni-directional drive bases, and tactical ball control in the campus arena.",
@@ -253,7 +250,6 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
   },
   {
     title: "Obstacle Course",
-    type: "TechnoVIT '26 Endurance",
     date: "TechnoVIT '26",
     image: "/gallery/2.jpg",
     desc: "Extreme terrain traversal challenge requiring rugged suspension kinematics, bridge balancing, trench navigation, and precision pilot control under time trials.",
@@ -262,7 +258,6 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
   },
   {
     title: "Robosumo",
-    type: "TechnoVIT '26 Heavyweight",
     date: "TechnoVIT '26",
     image: "/gallery/4.jpg",
     desc: "High-torque robotic wrestling clash where reinforced combat bots maneuver, counter-leverage, and forcefully eject opponents outside the ring perimeter.",

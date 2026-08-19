@@ -298,8 +298,6 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                   </div>
                   <h3 className="font-sans text-[#e8b828] text-xl font-semibold transition-colors duration-300 group-hover:text-white">{event.title}</h3>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest">{event.type}</span>
-                    <span className="w-1 h-1 rounded-full bg-zinc-700 block"></span>
                     <span className="font-mono text-[10px] text-[#e8b828] uppercase tracking-widest">{event.date}</span>
                   </div>
                   <p className="font-sans text-body-md text-zinc-400 text-sm leading-relaxed line-clamp-2">
@@ -472,9 +470,6 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                       {selectedMarqueeCard.status}
                     </div>
                     <h2 className="text-2xl font-bold text-white tracking-tight">{selectedMarqueeCard.title}</h2>
-                    <p className="text-xs text-[#e8b828]/95 font-mono tracking-tight font-medium">
-                      Event Type: {selectedMarqueeCard.type}
-                    </p>
                   </div>
                 </div>
 

@@ -23,7 +23,6 @@ export interface ActivityLog {
 
 export interface DeploymentEvent {
   title: string;
-  type: string;
   date: string;
   image: string;
   desc: string;
