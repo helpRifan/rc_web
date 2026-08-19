@@ -121,68 +121,81 @@ export default function ActivitiesView() {
       </section>
 
       {/* Past Mission Archive */}
-      <section className="space-y-8 border-t border-dashed border-zinc-800 pt-16">
-        <h2 className="font-sans text-[#e5e1e4] text-3xl font-normal tracking-[-0.65px]">Mission Archive</h2>
+      <section className="space-y-12 border-t border-dashed border-zinc-800 pt-16">
+        <div>
+          <h2 className="font-sans text-[#e5e1e4] text-3xl font-normal tracking-[-0.65px]">Mission Archive</h2>
+          <p className="font-sans text-sm text-zinc-400 mt-2">Chronological record of past operations and exhibitions.</p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[250px]">
-          {/* Item 1: Large feature item (spans 2 rows) */}
-          <div className="lg:row-span-2 md:col-span-1 lg:col-span-1 relative group overflow-hidden bg-[#101010] rounded-md border border-zinc-800 cursor-pointer hover:border-zinc-700 transition-colors">
-            <div className="absolute inset-0 bg-[#0c0c0e] flex flex-col items-center justify-center p-4 text-center select-none">
-              <Cpu className="w-12 h-12 text-zinc-700 mb-3" />
-              <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-[0.2em] mb-1 font-semibold">ROBOTICS ARCHIVE CORE</span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-8 w-full space-y-4">
-              <span className="font-mono text-xs text-[#e8b828] uppercase tracking-wider block">{ARCHIVE_RECAPS[0].category}</span>
-              <h3 className="font-sans text-white text-2xl font-bold tracking-tight">{ARCHIVE_RECAPS[0].title}</h3>
-              <p className="font-sans text-sm text-zinc-400 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 leading-relaxed">
-                {ARCHIVE_RECAPS[0].desc}
-              </p>
-            </div>
+        {/* 2026 Archive */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <h3 className="font-mono text-xl text-[#e8b828] font-bold">26'</h3>
+            <div className="h-px bg-zinc-800 flex-grow border-t border-dashed border-zinc-700"></div>
           </div>
-
-          {/* Item 2 */}
-          <div className="relative group overflow-hidden bg-[#101010] rounded-md border border-zinc-800 cursor-pointer hover:border-zinc-700 transition-colors">
-            <div className="absolute inset-0 bg-[#0c0c0e] flex flex-col items-center justify-center p-4 text-center select-none">
-              <Hammer className="w-8 h-8 text-zinc-700 mb-2" />
-              <span className="font-mono text-[9px] text-zinc-500 tracking-[0.2em] uppercase mb-1 font-semibold">ROBOTICS ARCHIVE SUB_01</span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-6 w-full">
-              <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-semibold block mb-1">{ARCHIVE_RECAPS[1].category}</span>
-              <h3 className="font-sans text-[#e5e1e4] text-lg font-medium tracking-tight">{ARCHIVE_RECAPS[1].title}</h3>
-            </div>
+          
+          <div className="flex flex-col gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {ARCHIVE_RECAPS.filter(item => item.year === '2026').map((item, idx) => (
+              <a 
+                key={idx}
+                href={item.link || "#"}
+                target={item.link ? "_blank" : "_self"}
+                rel="noopener noreferrer"
+                className="group flex flex-col sm:flex-row bg-[#101010] border border-zinc-800 rounded-lg overflow-hidden hover:border-zinc-700 transition-colors shrink-0"
+              >
+                <div className="w-full sm:w-48 h-40 sm:h-auto bg-[#0c0c0e] relative shrink-0">
+                  {item.image ? (
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Cpu className="w-8 h-8 text-zinc-700" />
+                    </div>
+                  )}
+                </div>
+                <div className="p-6 flex flex-col justify-center flex-grow space-y-2">
+                  <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-semibold">{item.category}</span>
+                  <h4 className="font-sans text-white text-xl font-bold tracking-tight group-hover:text-[#e8b828] transition-colors">{item.title}</h4>
+                  <p className="font-sans text-sm text-zinc-400 leading-relaxed max-w-2xl">{item.desc}</p>
+                </div>
+                {item.link && (
+                  <div className="hidden sm:flex items-center pr-8 opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 duration-300">
+                    <ArrowRight className="w-5 h-5 text-[#e8b828]" />
+                  </div>
+                )}
+              </a>
+            ))}
           </div>
+        </div>
 
-          {/* Item 3 */}
-          <div className="relative group overflow-hidden bg-[#101010] rounded-md border border-zinc-800 cursor-pointer hover:border-zinc-700 transition-colors">
-            <div className="absolute inset-0 bg-[#0c0c0e] flex flex-col items-center justify-center p-4 text-center select-none">
-              <Microscope className="w-8 h-8 text-zinc-700 mb-2" />
-              <span className="font-mono text-[9px] text-zinc-500 tracking-[0.2em] uppercase mb-1 font-semibold">ROBOTICS ARCHIVE SUB_02</span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-6 w-full">
-              <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-semibold block mb-1">{ARCHIVE_RECAPS[2].category}</span>
-              <h3 className="font-sans text-[#e5e1e4] text-lg font-medium tracking-tight">{ARCHIVE_RECAPS[2].title}</h3>
-            </div>
+        {/* 2025 Archive */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <h3 className="font-mono text-xl text-[#e8b828] font-bold">25'</h3>
+            <div className="h-px bg-zinc-800 flex-grow border-t border-dashed border-zinc-700"></div>
           </div>
-
-          {/* Item 4: Wide recap item (spans 2 columns on desktop) */}
-          <div className="md:col-span-2 relative group overflow-hidden bg-[#101010] rounded-md border border-zinc-800 cursor-pointer hover:border-zinc-700 transition-colors">
-            <div className="absolute inset-0 bg-[#0c0c0e] flex flex-col items-center justify-center p-4 text-center select-none">
-              <Terminal className="w-12 h-12 text-zinc-700 mb-3" />
-              <span className="font-mono text-[10px] text-zinc-500 tracking-[0.2em] uppercase mb-1 font-semibold">ROBOTICS ARCHIVE SUB_03</span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-8 w-full flex justify-between items-end">
-              <div className="space-y-2">
-                <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-semibold block">{ARCHIVE_RECAPS[3].category}</span>
-                <h3 className="font-sans text-[#e5e1e4] text-2xl font-medium tracking-tight">{ARCHIVE_RECAPS[3].title}</h3>
+          
+          <div className="flex flex-col gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {ARCHIVE_RECAPS.filter(item => item.year === '2025').map((item, idx) => (
+              <div 
+                key={idx}
+                className="group flex flex-col sm:flex-row bg-[#101010] border border-zinc-800 rounded-lg overflow-hidden hover:border-zinc-700 transition-colors shrink-0"
+              >
+                <div className="w-full sm:w-48 h-40 sm:h-auto bg-[#0c0c0e] relative shrink-0">
+                  {item.image ? (
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Terminal className="w-8 h-8 text-zinc-700" />
+                    </div>
+                  )}
+                </div>
+                <div className="p-6 flex flex-col justify-center flex-grow space-y-2">
+                  <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-semibold">{item.category}</span>
+                  <h4 className="font-sans text-white text-xl font-bold tracking-tight">{item.title}</h4>
+                  <p className="font-sans text-sm text-zinc-400 leading-relaxed max-w-2xl">{item.desc}</p>
+                </div>
               </div>
-              <span className="p-2 border border-zinc-800 text-zinc-400 rounded-md group-hover:text-white transition-colors">
-                <ArrowRight className="w-5 h-5" />
-              </span>
-            </div>
+            ))}
           </div>
         </div>
       </section>

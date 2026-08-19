@@ -272,29 +272,37 @@ export const UPCOMING_EVENTS: DeploymentEvent[] = [
 ];
 
 export const ARCHIVE_RECAPS: ArchiveItem[] = [
+  // 2026 Events
   {
-    title: "Drone Dynamics Challenge",
+    title: "Arduino Rev Up Level 1",
+    category: "Workshop",
+    image: "/gallery/1.jpg",
+    desc: "A hands-on introduction to microcontrollers, sensors, and actuator integration for robotics beginners.",
+    year: "2026",
+    link: "https://photos.google.com/"
+  },
+  {
+    title: "Robotics Club Expo '26",
+    category: "Exhibition",
+    image: "/gallery/9.jpg",
+    desc: "Showcase of our latest rovers, autonomous drones, and combat bots to the university at large.",
+    year: "2026"
+  },
+  
+  // 2025 Events
+  {
+    title: "TechnoVIT '25 Flagship",
     category: "Competition Recap",
-    image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&q=80&w=500",
-    desc: "Team VITC secured 1st place with an innovative swarm-logic algorithm for decentralized autonomous navigation."
+    image: "/gallery/5.jpg",
+    desc: "A massive success with over 500+ participants across 5 robotics tracks including Robowars and Line Follower.",
+    year: "2025"
   },
   {
-    title: "PCB Design Basics",
-    category: "Workshop Recap",
-    image: "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&q=80&w=500",
-    desc: "Introduction to double-layer routing, high-frequency signals, ground planes layout, and manufacturing prep."
-  },
-  {
-    title: "Arm Manipulator V2",
-    category: "Project Spotlight",
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500",
-    desc: "Deploying standard 6-axis hardware manipulators with sub-millimeter repeatable grasping kinematics."
-  },
-  {
-    title: "Automata '23 Exhibition",
-    category: "Symposium Recap",
-    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=500",
-    desc: "VITC team projects demonstrate dynamic balance controllers and spatial mapping sensors to high acclaim."
+    title: "Advanced Kinematics Session",
+    category: "Workshop",
+    image: "/gallery/6.jpg",
+    desc: "Deep dive into inverse kinematics and robotic manipulator theory.",
+    year: "2025"
   }
 ];
 

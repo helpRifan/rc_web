@@ -37,6 +37,7 @@ export interface ArchiveItem {
   image: string;
   desc?: string;
   year?: string;
+  link?: string;
 }
 
 export interface ChatMessage {
