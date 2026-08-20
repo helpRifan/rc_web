@@ -124,6 +124,15 @@ CREATE POLICY "Public Read Members" ON public.members FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Public Read Events" ON public.events;
 CREATE POLICY "Public Read Events" ON public.events FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Auth Insert Events" ON public.events;
+CREATE POLICY "Auth Insert Events" ON public.events FOR INSERT TO authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Auth Update Events" ON public.events;
+CREATE POLICY "Auth Update Events" ON public.events FOR UPDATE TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Auth Delete Events" ON public.events;
+CREATE POLICY "Auth Delete Events" ON public.events FOR DELETE TO authenticated USING (true);
+
 DROP POLICY IF EXISTS "Public Read Certificates" ON public.certificates;
 CREATE POLICY "Public Read Certificates" ON public.certificates FOR SELECT USING (true);
 
