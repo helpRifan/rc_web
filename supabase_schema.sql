@@ -101,20 +101,21 @@ CREATE TABLE IF NOT EXISTS public.collaborations (
 );
 
 -- ==============================================================================
--- 6. TABLE: form_submissions (Create if missing)
+-- 7. TABLE: admins (For dynamic admin access delegation)
 -- ==============================================================================
-CREATE TABLE IF NOT EXISTS public.form_submissions (
+CREATE TABLE IF NOT EXISTS public.admins (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    form_type TEXT DEFAULT 'recruitment', -- 'recruitment', 'contact', 'sponsorship'
-    full_name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT,
-    roll_number TEXT,
-    department_preference TEXT,
-    message TEXT,
-    status TEXT DEFAULT 'pending', -- 'pending', 'reviewed', 'contacted', 'rejected'
-    submitted_at TIMESTAMPTZ DEFAULT NOW()
+    email TEXT UNIQUE NOT NULL,
+    name TEXT,
+    role TEXT DEFAULT 'Club Admin',
+    added_by TEXT DEFAULT 'System',
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Ensure columns exist if table was previously created with older schema
+ALTER TABLE public.admins ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE public.admins ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'Club Admin';
+ALTER TABLE public.admins ADD COLUMN IF NOT EXISTS added_by TEXT DEFAULT 'System';
 
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
@@ -160,6 +161,21 @@ CREATE POLICY "Auth Delete Gallery" ON public.gallery FOR DELETE TO authenticate
 DROP POLICY IF EXISTS "Public Read Collaborations" ON public.collaborations;
 CREATE POLICY "Public Read Collaborations" ON public.collaborations FOR SELECT USING (true);
 
+-- Admins Table Policies
+ALTER TABLE public.admins ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public Read Admins" ON public.admins;
+CREATE POLICY "Public Read Admins" ON public.admins FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Auth Insert Admins" ON public.admins;
+CREATE POLICY "Auth Insert Admins" ON public.admins FOR INSERT TO authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Auth Update Admins" ON public.admins;
+CREATE POLICY "Auth Update Admins" ON public.admins FOR UPDATE TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Auth Delete Admins" ON public.admins;
+CREATE POLICY "Auth Delete Admins" ON public.admins FOR DELETE TO authenticated USING (true);
+
 -- Form Submissions Policies
 DROP POLICY IF EXISTS "Public Insert Form Submissions" ON public.form_submissions;
 CREATE POLICY "Public Insert Form Submissions" ON public.form_submissions FOR INSERT WITH CHECK (true);
@@ -195,5 +211,17 @@ VALUES
     ('Software Deployment', 'Neural Networks', 'R&D', '/gallery/9.jpg', 'Deploying a lightweight YOLOv8 model directly onto the edge compute modules of our navigation rovers for real-time obstacle detection.', 'Software Deployment with Neural Networks', 9),
     ('Final Assembly Line', 'Integration Phase', 'Competition', '/gallery/10.jpg', 'The exciting final integration phase where the carbon fiber frame meets the electrical harness and the primary compute stack is powered on for the first time.', 'Final Assembly Line during Integration Phase', 10)
 ON CONFLICT DO NOTHING;
+
+-- ==============================================================================
+-- SEED DATA FOR ADMINS (CORE CLUB LEADERSHIP)
+-- ==============================================================================
+INSERT INTO public.admins (email, name, role, added_by)
+VALUES
+    ('mohamed.rifanajmal2025@vitstudent.ac.in', 'Mohamed Rifan Ajmal', 'Lead Developer & Admin', 'System Core'),
+    ('rifanajmal@gmail.com', 'Rifan Ajmal', 'System Superadmin', 'System Core'),
+    ('ihsan.hashir2024@vitstudent.ac.in', 'Ihsan Hashir', 'President / Core Leadership', 'System Core'),
+    ('aditya.kumarsahu2025@vitstudent.ac.in', 'Aditya Kumar Sahu', 'Core Leadership', 'System Core'),
+    ('robotics.club@vit.ac.in', 'Robotics Club Official', 'Club Mailbox', 'System Core')
+ON CONFLICT (email) DO NOTHING;
 
 

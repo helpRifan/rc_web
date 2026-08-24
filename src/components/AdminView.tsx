@@ -8,9 +8,10 @@ import {
 } from "lucide-react";
 import { CLUB_MEMBERS, DIVISIONAL_MEMBERS, UPCOMING_EVENTS } from "../data";
 import { Member, ActivityLog } from "../types";
-import { supabase, signInWithGoogle, signOut, isAuthorizedStudentEmail, isClubAdmin } from "../lib/supabase";
+import { supabase, signInWithGoogle, signOut, isAuthorizedStudentEmail, isClubAdmin, checkClubAdminAsync } from "../lib/supabase";
 import EventsManager from "./EventsManager";
 import HighlightsManager from "./HighlightsManager";
+import AdminAccessManager from "./AdminAccessManager";
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -84,7 +85,7 @@ export default function AdminView() {
 
   // Check active Supabase Google session
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user?.email) {
         if (isAuthorizedStudentEmail(session.user.email)) {
           const allMembers = [...CLUB_MEMBERS, ...DIVISIONAL_MEMBERS];
@@ -94,7 +95,7 @@ export default function AdminView() {
           if (matched) {
             setCurrentUser(matched);
           } else {
-            const hasAdminRole = isClubAdmin(session.user.email);
+            const hasAdminRole = isClubAdmin(session.user.email) || (await checkClubAdminAsync(session.user.email));
             const studentProfile: Member = {
               name: session.user.user_metadata?.full_name || session.user.email.split("@")[0] || "VIT Student",
               role: hasAdminRole ? "Lead Administrator" : "Student Member",
@@ -475,6 +476,8 @@ export default function AdminView() {
       <EventsManager />
 
       <HighlightsManager />
+
+      <AdminAccessManager />
 
       {/* Stats row */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

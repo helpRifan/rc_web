@@ -26,6 +26,25 @@ export function isClubAdmin(email?: string | null): boolean {
   return ADMIN_EMAILS.some((adm) => adm.toLowerCase() === cleanEmail);
 }
 
+export async function checkClubAdminAsync(email?: string | null): Promise<boolean> {
+  if (!email) return false;
+  const cleanEmail = email.toLowerCase().trim();
+  if (ADMIN_EMAILS.some((adm) => adm.toLowerCase() === cleanEmail)) {
+    return true;
+  }
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("admins")
+        .select("email")
+        .ilike("email", cleanEmail)
+        .maybeSingle();
+      if (data && !error) return true;
+    } catch {}
+  }
+  return false;
+}
+
 export async function signInWithGoogle() {
   const redirectUrl = window.location.origin;
   return await supabase.auth.signInWithOAuth({

@@ -57,9 +57,23 @@ const ADMIN_EMAILS = [
   "rifanajmal@gmail.com"
 ];
 
-function isClubAdmin(email?: string): boolean {
+async function isClubAdmin(email?: string): Promise<boolean> {
   if (!email) return false;
-  return ADMIN_EMAILS.some((adm) => adm.toLowerCase() === email.toLowerCase().trim());
+  const cleanEmail = email.toLowerCase().trim();
+  if (ADMIN_EMAILS.some((adm) => adm.toLowerCase() === cleanEmail)) {
+    return true;
+  }
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("admins")
+        .select("email")
+        .ilike("email", cleanEmail)
+        .maybeSingle();
+      if (data && !error) return true;
+    } catch {}
+  }
+  return false;
 }
 
 // Authentication Middleware
@@ -81,7 +95,8 @@ async function requireAdminAuth(req: any, res: any, next: any) {
       return res.status(401).json({ error: "Unauthorized: Invalid session token." });
     }
 
-    if (!isClubAdmin(user.email)) {
+    const hasClearance = await isClubAdmin(user.email);
+    if (!hasClearance) {
       return res.status(403).json({ error: `Forbidden: Administrator clearance required for ${user.email}.` });
     }
 
@@ -315,7 +330,8 @@ router.post("/admin/settings", requireAdminAuth, (req, res) => {
 router.post("/admin/request-access", requireAuth, async (req: any, res: any) => {
   const user = req.user;
 
-  if (isClubAdmin(user.email)) {
+  const alreadyAdmin = await isClubAdmin(user.email);
+  if (alreadyAdmin) {
     return res.json({ success: true, message: "You already have admin clearance." });
   }
 
@@ -331,7 +347,7 @@ router.post("/admin/request-access", requireAuth, async (req: any, res: any) => 
             <p><strong>User:</strong> ${user.user_metadata?.full_name || "Unknown Student"} (<a href="mailto:${user.email}" style="color: #e8b828;">${user.email}</a>)</p>
             <p>This user has requested access to the Admin Terminal.</p>
             <hr style="border: 1px solid #27272a;" />
-            <p style="font-size: 12px; color: #a1a1aa;">To approve, please review their credentials and manually add their email to the <code>ADMIN_EMAILS</code> array in the source code.</p>
+            <p style="font-size: 12px; color: #a1a1aa;">You can now approve and grant them clearance directly in the <strong>Admin Access Management</strong> panel inside the Admin Terminal.</p>
           </div>
         `
       });
@@ -343,6 +359,146 @@ router.post("/admin/request-access", requireAuth, async (req: any, res: any) => 
   }
 
   return res.status(503).json({ error: "Email configuration unavailable." });
+});
+
+// Admin Team & Clearance Delegation Endpoints
+router.get("/admin/list", requireAdminAuth, async (req, res) => {
+  try {
+    let dbAdmins: any[] = [];
+    if (supabase) {
+      const { data, error } = await supabase
+        .from("admins")
+        .select("*")
+        .order("created_at", { ascending: true });
+      if (!error && Array.isArray(data)) {
+        dbAdmins = data;
+      }
+    }
+
+    // Merge with static default admin list if not in db
+    const hardcodedDefaults = ADMIN_EMAILS.map((email, idx) => ({
+      id: `core-${idx}`,
+      email: email.toLowerCase(),
+      name: email.includes("rifan") ? "Mohamed Rifan Ajmal" : (email.includes("ihsan") ? "Ihsan Hashir" : (email.includes("aditya") ? "Aditya Kumar Sahu" : "Core Administrator")),
+      role: "System Core Lead",
+      added_by: "System Core",
+      created_at: new Date(2025, 0, 1).toISOString(),
+      is_core: true
+    }));
+
+    const existingEmails = new Set(dbAdmins.map(a => a.email.toLowerCase()));
+    const finalAdmins = [...dbAdmins];
+
+    for (const core of hardcodedDefaults) {
+      if (!existingEmails.has(core.email)) {
+        finalAdmins.unshift(core);
+      }
+    }
+
+    res.json(finalAdmins);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || "Failed to fetch admin roster." });
+  }
+});
+
+router.post("/admin/invite", requireAdminAuth, async (req: any, res: any) => {
+  const { email, name, role } = req.body;
+  const cleanEmail = (email || "").trim().toLowerCase();
+  const adminName = (name || cleanEmail.split("@")[0] || "Club Admin").trim();
+  const adminRole = (role || "Core Team Lead").trim();
+
+  if (!cleanEmail || !cleanEmail.includes("@")) {
+    return res.status(400).json({ error: "Valid email address is required." });
+  }
+
+  try {
+    let newRecord = null;
+    if (supabase) {
+      const { data, error } = await supabase
+        .from("admins")
+        .upsert({
+          email: cleanEmail,
+          name: adminName,
+          role: adminRole,
+          added_by: req.user.email || "Administrator"
+        }, { onConflict: "email" })
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message || "Failed to save admin into database.");
+      }
+      newRecord = data;
+    }
+
+    // Send confirmation email via Resend
+    let emailDispatched = false;
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: "VITC Robotics Club <onboarding@resend.dev>",
+          to: [cleanEmail],
+          subject: `🔐 Administrator Clearance Granted: ${adminName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; background-color: #0c0c0e; color: #e5e1e4; padding: 32px; border-radius: 10px; max-width: 550px; margin: auto; border: 1px solid #27272a;">
+              <h2 style="color: #e8b828; margin-top: 0; font-size: 22px;">VIT CHENNAI ROBOTICS CLUB</h2>
+              <p style="font-size: 13px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Admin Terminal Clearance Granted</p>
+              <hr style="border: 0; border-top: 1px solid #27272a; margin: 20px 0;" />
+              <p>Hello <strong>${adminName}</strong>,</p>
+              <p>You have been granted <strong>${adminRole}</strong> access to the <strong>Robotics Club Control Terminal</strong> by <code>${req.user.email}</code>.</p>
+              <div style="background-color: #18181b; border: 1px solid #3f3f46; border-radius: 8px; padding: 18px; margin: 20px 0;">
+                <p style="margin: 0; font-size: 13px; color: #e4e4e7;"><strong>Authorized Email:</strong> <code style="color: #e8b828;">${cleanEmail}</code></p>
+                <p style="margin: 8px 0 0 0; font-size: 13px; color: #e4e4e7;"><strong>Role:</strong> ${adminRole}</p>
+                <p style="margin: 8px 0 0 0; font-size: 13px; color: #e4e4e7;"><strong>Permissions:</strong> Events Management, Highlights Gallery, Lab Telemetry, Certificate Portal</p>
+              </div>
+              <p style="font-size: 13px; color: #a1a1aa; line-height: 1.5;">You can now log into the club website using your Google <code>@vitstudent.ac.in</code> account to access the Admin Terminal.</p>
+              <div style="margin-top: 24px;">
+                <a href="https://rc-web-rho.vercel.app/#admin" style="background-color: #e8b828; color: #101010; font-weight: bold; text-decoration: none; padding: 12px 24px; border-radius: 6px; display: inline-block; font-size: 13px;">
+                  Open Admin Terminal
+                </a>
+              </div>
+            </div>
+          `
+        });
+        emailDispatched = true;
+      } catch (mailErr: any) {
+        console.warn("Resend email invite warning:", mailErr);
+      }
+    }
+
+    res.json({
+      success: true,
+      emailDispatched,
+      admin: newRecord || { email: cleanEmail, name: adminName, role: adminRole },
+      message: `Admin access granted to ${cleanEmail}${emailDispatched ? " and notification email sent." : "."}`
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || "Failed to grant admin access." });
+  }
+});
+
+router.delete("/admin/remove/:id", requireAdminAuth, async (req: any, res: any) => {
+  const { id } = req.params;
+  if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
+
+  try {
+    // Check if UUID or email
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    let query = supabase.from("admins").delete();
+
+    if (isUUID) {
+      query = query.eq("id", id);
+    } else {
+      query = query.ilike("email", id);
+    }
+
+    const { error } = await query;
+    if (error) throw error;
+
+    res.json({ success: true, message: "Administrator clearance revoked." });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || "Failed to remove administrator." });
+  }
 });
 
 // Admin mock activities
