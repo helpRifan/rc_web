@@ -417,10 +417,12 @@ router.post("/admin/invite", requireAdminAuth, async (req: any, res: any) => {
 
     // Send confirmation email via Resend
     let emailDispatched = false;
+    let emailErrorMessage = "";
     if (resend) {
       try {
-        await resend.emails.send({
-          from: "VITC Robotics Club <onboarding@resend.dev>",
+        const fromAddress = process.env.RESEND_FROM_EMAIL || "VITC Robotics Club <onboarding@resend.dev>";
+        const { data: mailData, error: mailError } = await resend.emails.send({
+          from: fromAddress,
           to: [cleanEmail],
           subject: `🔐 Administrator Clearance Granted: ${adminName}`,
           html: `
@@ -444,17 +446,29 @@ router.post("/admin/invite", requireAdminAuth, async (req: any, res: any) => {
             </div>
           `
         });
-        emailDispatched = true;
+
+        if (mailError) {
+          console.error("Resend API returned error:", mailError);
+          emailErrorMessage = mailError.message || "Resend test mode domain restriction.";
+        } else if (mailData) {
+          emailDispatched = true;
+        }
       } catch (mailErr: any) {
-        console.warn("Resend email invite warning:", mailErr);
+        console.warn("Resend email invite exception:", mailErr);
+        emailErrorMessage = mailErr.message || "Failed to dispatch email.";
       }
+    } else {
+      emailErrorMessage = "RESEND_API_KEY is not configured on the backend.";
     }
 
     res.json({
       success: true,
       emailDispatched,
+      emailError: emailErrorMessage,
       admin: newRecord || { email: cleanEmail, name: adminName, role: adminRole },
-      message: `Admin access granted to ${cleanEmail}${emailDispatched ? " and notification email sent." : "."}`
+      message: emailDispatched 
+        ? `Admin access granted to ${cleanEmail} and invitation email sent successfully.` 
+        : `Admin access granted to ${cleanEmail} in database.${emailErrorMessage ? ` (Email warning: ${emailErrorMessage})` : ""}`
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Failed to grant admin access." });

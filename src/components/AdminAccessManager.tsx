@@ -129,8 +129,8 @@ export default function AdminAccessManager() {
       }
 
       setFeedback({
-        type: "success",
-        text: `Administrator access granted to ${cleanEmail}! Official email dispatch was sent via Resend.`
+        type: result.emailDispatched ? "success" : "error",
+        text: result.message || `Admin clearance granted to ${cleanEmail}.`
       });
 
       setShowModal(false);
