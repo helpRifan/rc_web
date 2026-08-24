@@ -49,35 +49,40 @@ export default function AboutView() {
         transition={{ duration: 0.8 }}
         className="space-y-xxl pb-xl"
       >
-        {/* Interactive 3D DriftWall Showcase Header (Dynamic Highlights Gallery) */}
-        <section className="relative h-[380px] sm:h-[480px] md:h-[560px] w-full border border-zinc-800/60 bg-[#09090b] overflow-hidden rounded-2xl shadow-2xl">
+        {/* Full-Bleed 3D DriftWall Interactive Header (Full Viewport Width, unboxed) */}
+        <section className="relative w-screen left-1/2 right-1/2 -mx-[50vw] h-[480px] sm:h-[580px] md:h-[680px] overflow-hidden -mt-12 mb-16 bg-transparent">
           <DriftWall
             items={driftItems}
-            columns={5}
-            tileWidth={210}
-            tileHeight={138}
-            gap={16}
-            tilt={16}
-            turn={-14}
+            columns={7}
+            tileWidth={230}
+            tileHeight={152}
+            gap={20}
+            tilt={15}
+            turn={-12}
             perspective={1200}
-            depth={120}
+            depth={130}
             speed={38}
             direction="up"
             variance={0.45}
-            parallax={0.6}
-            lift={64}
-            fade={0.6}
-            dim={0.58}
-            overlayColor="#060010"
+            parallax={0.65}
+            lift={68}
+            fade={0.7}
+            dim={0.6}
+            overlayColor="#0c0c0e"
             radius={14}
             roll={0}
             pauseOnHover={false}
             grayscale={false}
           />
+
+          {/* Seamless Edge Blending into page background */}
+          <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#0c0c0e] via-[#0c0c0e]/70 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0c0c0e] via-[#0c0c0e]/70 to-transparent pointer-events-none" />
+
           {/* Ambient Overlay Tag */}
-          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 pointer-events-none flex items-center gap-2.5 bg-zinc-950/80 backdrop-blur-md border border-zinc-800/80 px-3.5 py-1.5 rounded-full shadow-lg">
-            <span className="w-2 h-2 rounded-full bg-[#e8b828] animate-pulse"></span>
-            <span className="font-mono text-[11px] text-zinc-300 font-semibold tracking-wider uppercase">
+          <div className="absolute top-6 left-6 sm:left-12 z-10 pointer-events-none flex items-center gap-2.5 bg-zinc-950/80 backdrop-blur-md border border-zinc-800/80 px-4 py-2 rounded-full shadow-2xl">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#e8b828] animate-pulse"></span>
+            <span className="font-mono text-xs text-zinc-300 font-semibold tracking-wider uppercase">
               Operations &amp; R&amp;D Highlights Wall
             </span>
           </div>
