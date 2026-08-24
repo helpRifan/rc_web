@@ -12,7 +12,8 @@ import {
   Layers, 
   Eye, 
   Microscope,
-  CheckCircle2
+  CheckCircle2,
+  RefreshCw
 } from "lucide-react";
 import { GALLERY_ITEMS } from "../data";
 
@@ -294,6 +295,42 @@ export default function HighlightsManager() {
     }
   };
 
+  const handleSeedDefaults = async () => {
+    if (!window.confirm("Import all 10 default Highlights into your database so you can edit and manage each one? (Existing custom items will be preserved)")) return;
+    setLoading(true);
+    try {
+      const defaultPayloads = GALLERY_ITEMS.map((item, idx) => ({
+        title: item.title,
+        category: item.subtitle || "Operations",
+        image_url: item.image || `/gallery/${idx + 1}.jpg`,
+        description: item.story || "",
+        order_index: idx + 1,
+        year: "2025"
+      }));
+
+      // 1. Direct Supabase insert
+      const { error: sbError } = await supabase.from("gallery").insert(defaultPayloads);
+      if (sbError) {
+        console.warn("Direct Supabase seed error, trying API fallback:", sbError);
+        const headers = await getHeaders();
+        for (const p of defaultPayloads) {
+          await fetch("/api/gallery", {
+            method: "POST",
+            headers,
+            body: JSON.stringify(p)
+          });
+        }
+      }
+      await fetchHighlights();
+      alert("Successfully imported all 10 default highlights into database!");
+    } catch (err: any) {
+      console.error("Seed error:", err);
+      alert(err.message || "Failed to import default highlights.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const resetForm = () => {
     setEditingId(null);
     setFormData({
@@ -349,13 +386,24 @@ export default function HighlightsManager() {
             Manage the Operations Recap Highlights Gallery slider and interactive Project Details modal.
           </p>
         </div>
-        <button 
-          onClick={() => { resetForm(); setShowModal(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#e8b828] text-black font-semibold rounded hover:bg-yellow-400 transition-colors cursor-pointer text-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Add Highlight
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button 
+            onClick={handleSeedDefaults}
+            disabled={loading}
+            className="flex items-center gap-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white font-mono text-xs rounded transition-colors cursor-pointer border border-zinc-700 disabled:opacity-50"
+            title="Populate database with all 10 default slides"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-[#e8b828]" />
+            <span>Import 10 Default Slides</span>
+          </button>
+          <button 
+            onClick={() => { resetForm(); setShowModal(true); }}
+            className="flex items-center gap-2 px-4 py-2 bg-[#e8b828] text-black font-semibold rounded hover:bg-yellow-400 transition-colors cursor-pointer text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Highlight
+          </button>
+        </div>
       </div>
 
       {/* Main Content Body */}
@@ -365,11 +413,33 @@ export default function HighlightsManager() {
             Loading Operations Gallery Records...
           </div>
         ) : highlights.length === 0 ? (
-          <div className="text-zinc-500 text-sm font-mono text-center py-12">
-            No highlight slides found. Click "Add Highlight" to create the first slide.
+          <div className="text-zinc-500 text-sm font-mono text-center py-12 space-y-3">
+            <p>No highlight slides found in database.</p>
+            <button 
+              onClick={handleSeedDefaults} 
+              className="px-4 py-2 bg-[#e8b828] text-black font-bold rounded text-xs cursor-pointer inline-flex items-center gap-1.5"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Import 10 Default Highlights
+            </button>
           </div>
         ) : (
           <div className="space-y-6">
+            {highlights.length < 10 && (
+              <div className="p-3.5 bg-zinc-900 border border-[#e8b828]/30 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                <span className="text-zinc-300 font-sans">
+                  💡 You have <strong className="text-[#e8b828]">{highlights.length}</strong> slide{highlights.length === 1 ? "" : "s"} in your database. Click to load all 10 default slides so you can edit and manage all of them:
+                </span>
+                <button
+                  onClick={handleSeedDefaults}
+                  disabled={loading}
+                  className="px-3 py-1.5 bg-[#e8b828] hover:bg-yellow-400 text-black font-bold rounded font-mono text-[11px] transition-colors cursor-pointer flex-shrink-0 flex items-center gap-1.5"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Restore All 10 Defaults</span>
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <span className="font-mono text-xs text-[#e8b828] uppercase tracking-widest flex items-center gap-2">
                 <Layers className="w-4 h-4" /> Active Gallery Slides ({highlights.length})
