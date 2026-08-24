@@ -1,9 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Cpu, Network, Router, X, BookOpen, Clock, Activity, CheckCircle, Wrench, MapPin } from "lucide-react";
+import { Cpu, Network, Router, X, BookOpen, Clock, Activity, CheckCircle, Wrench, MapPin, Sparkles } from "lucide-react";
+import DriftWall, { DriftWallItem } from "./DriftWall";
+import { GALLERY_ITEMS } from "../data";
+import { supabase } from "../lib/supabase";
 
 export default function AboutView() {
   const [manifestoOpen, setManifestoOpen] = useState(false);
+  const [galleryItems, setGalleryItems] = useState(GALLERY_ITEMS);
+
+  useEffect(() => {
+    const fetchHighlights = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("gallery")
+          .select("*")
+          .order("order_index", { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          setGalleryItems(data.map(d => ({
+            id: d.id,
+            title: d.title,
+            subtitle: d.subtitle || d.category,
+            image: d.image_url || d.image,
+            story: d.story || d.description
+          })));
+        }
+      } catch (e) {
+        console.warn("Using default gallery items for DriftWall", e);
+      }
+    };
+
+    fetchHighlights();
+  }, []);
+
+  const driftItems: DriftWallItem[] = (galleryItems && galleryItems.length > 0 ? galleryItems : GALLERY_ITEMS).map(item => ({
+    image: item.image,
+    title: item.title,
+    href: undefined
+  }));
 
   return (
     <>
@@ -14,42 +49,38 @@ export default function AboutView() {
         transition={{ duration: 0.8 }}
         className="space-y-xxl pb-xl"
       >
-        {/* Visual Header / Banner */}
-        <section className="relative h-[250px] md:h-[400px] border-b border-zinc-900 bg-[#101010] overflow-hidden group">
-          {/* Base Image with Ken Burns Effect */}
-          <motion.img 
-            initial={{ scale: 1.1 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 15, ease: "easeOut" }}
-            src="/about-banner.jpg" 
-            alt="About Us Banner" 
-            className="absolute inset-0 w-full h-full object-cover opacity-100 brightness-125 contrast-[1.3] mix-blend-screen transition-transform duration-1000 group-hover:scale-105" 
+        {/* Interactive 3D DriftWall Showcase Header (Dynamic Highlights Gallery) */}
+        <section className="relative h-[380px] sm:h-[480px] md:h-[560px] w-full border border-zinc-800/60 bg-[#09090b] overflow-hidden rounded-2xl shadow-2xl">
+          <DriftWall
+            items={driftItems}
+            columns={5}
+            tileWidth={210}
+            tileHeight={138}
+            gap={16}
+            tilt={16}
+            turn={-14}
+            perspective={1200}
+            depth={120}
+            speed={38}
+            direction="up"
+            variance={0.45}
+            parallax={0.6}
+            lift={64}
+            fade={0.6}
+            dim={0.58}
+            overlayColor="#060010"
+            radius={14}
+            roll={0}
+            pauseOnHover={false}
+            grayscale={false}
           />
-
-          {/* Animated Tech Grid Overlay */}
-          <motion.div 
-            animate={{ backgroundPosition: ['0px 0px', '40px 40px'] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 bg-[linear-gradient(rgba(232,184,40,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(232,184,40,0.05)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"
-          />
-
-          {/* Animated Holographic Scanning Line */}
-          <motion.div 
-            animate={{ top: ['-10%', '110%'] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-            className="absolute left-0 w-full h-[2px] bg-[#e8b828]/30 shadow-[0_0_10px_2px_rgba(232,184,40,0.4)] pointer-events-none blur-[1px]"
-          />
-
-          {/* Binary Data Rain (Subtle) */}
-          <div className="absolute right-10 top-10 flex flex-col gap-2 opacity-20 pointer-events-none select-none font-mono text-[8px] text-[#e8b828]">
-            <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, repeat: Infinity, delay: 0 }}>01001110</motion.div>
-            <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}>10110001</motion.div>
-            <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, repeat: Infinity, delay: 0.8 }}>00101101</motion.div>
+          {/* Ambient Overlay Tag */}
+          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 pointer-events-none flex items-center gap-2.5 bg-zinc-950/80 backdrop-blur-md border border-zinc-800/80 px-3.5 py-1.5 rounded-full shadow-lg">
+            <span className="w-2 h-2 rounded-full bg-[#e8b828] animate-pulse"></span>
+            <span className="font-mono text-[11px] text-zinc-300 font-semibold tracking-wider uppercase">
+              Operations &amp; R&amp;D Highlights Wall
+            </span>
           </div>
-
-          {/* Edge blending gradients to seamlessly merge the image with the dark UI */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#101010]/80 via-transparent to-[#101010] pointer-events-none"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#101010]/90 via-transparent to-[#101010]/90 pointer-events-none"></div>
         </section>
 
         {/* Genesis & Split Story */}
