@@ -78,6 +78,13 @@ CREATE TABLE IF NOT EXISTS public.gallery (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Ensure columns exist if table was previously created with older schema
+ALTER TABLE public.gallery ADD COLUMN IF NOT EXISTS subtitle TEXT;
+ALTER TABLE public.gallery ADD COLUMN IF NOT EXISTS story TEXT;
+ALTER TABLE public.gallery ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE public.gallery ADD COLUMN IF NOT EXISTS category TEXT;
+ALTER TABLE public.gallery ADD COLUMN IF NOT EXISTS order_index INTEGER DEFAULT 0;
+
 -- ==============================================================================
 -- 5. TABLE: collaborations (Create if missing)
 -- ==============================================================================

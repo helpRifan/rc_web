@@ -233,7 +233,15 @@ router.get("/gallery", async (req, res) => {
 router.post("/gallery", requireAdminAuth, async (req, res) => {
   if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
   try {
-    const { id, created_at, ...cleanPayload } = req.body;
+    const { id, created_at, story, subtitle, ...rest } = req.body;
+    const cleanPayload = {
+      title: rest.title || "Untitled",
+      category: subtitle || rest.category || "Operations",
+      image_url: rest.image_url || "/gallery/1.jpg",
+      description: story || rest.description || "",
+      order_index: rest.order_index ?? 0,
+      year: rest.year || "2025"
+    };
     const { data, error } = await supabase.from("gallery").insert([cleanPayload]).select().single();
     if (error) throw error;
     res.json(data);
@@ -246,7 +254,23 @@ router.put("/gallery/:id", requireAdminAuth, async (req, res) => {
   if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
   try {
     const { id } = req.params;
-    const { id: _, created_at: __, ...cleanPayload } = req.body;
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const { id: _, created_at: __, story, subtitle, ...rest } = req.body;
+    const cleanPayload = {
+      title: rest.title || "Untitled",
+      category: subtitle || rest.category || "Operations",
+      image_url: rest.image_url || "/gallery/1.jpg",
+      description: story || rest.description || "",
+      order_index: rest.order_index ?? 0,
+      year: rest.year || "2025"
+    };
+
+    if (!isUUID) {
+      const { data, error } = await supabase.from("gallery").insert([cleanPayload]).select().single();
+      if (error) throw error;
+      return res.json(data);
+    }
+
     const { data, error } = await supabase.from("gallery").update(cleanPayload).eq("id", id).select().single();
     if (error) throw error;
     res.json(data);
@@ -259,6 +283,10 @@ router.delete("/gallery/:id", requireAdminAuth, async (req, res) => {
   if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
   try {
     const { id } = req.params;
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (!isUUID) {
+      return res.json({ success: true, message: "Static preset removed" });
+    }
     const { error } = await supabase.from("gallery").delete().eq("id", id);
     if (error) throw error;
     res.json({ success: true });

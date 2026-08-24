@@ -181,22 +181,29 @@ export default function HighlightsManager() {
     };
   };
 
+  const isValidUUID = (val?: string | number | null) => {
+    if (!val) return false;
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(val));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const headers = await getHeaders();
 
+    // Map to guaranteed existing database columns (category and description)
     const cleanPayload = {
       title: formData.title || "Untitled Highlight",
-      subtitle: formData.subtitle || "Operations",
       category: formData.subtitle || formData.category || "Operations",
       image_url: formData.image_url || "/gallery/1.jpg",
-      story: formData.story || "",
-      description: formData.story || "",
-      order_index: typeof formData.order_index === "number" ? formData.order_index : 1
+      description: formData.story || formData.description || "",
+      order_index: typeof formData.order_index === "number" ? formData.order_index : 1,
+      year: formData.year || "2025"
     };
 
+    const isEditUUID = editingId && isValidUUID(editingId);
+
     try {
-      if (editingId) {
+      if (isEditUUID) {
         // 1. Try Backend API first
         let apiSuccess = false;
         try {
@@ -219,7 +226,7 @@ export default function HighlightsManager() {
           if (sbError) throw new Error(sbError.message || "Failed to update highlight in database");
         }
       } else {
-        // 1. Try Backend API first
+        // Create new record (also handles editing a non-UUID default preset)
         let apiSuccess = false;
         try {
           const res = await fetch("/api/gallery", {
@@ -253,6 +260,12 @@ export default function HighlightsManager() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to remove this highlight photo from Operations Recap?")) return;
     
+    // If it's a local preset card without a UUID in database, just clear it locally
+    if (!isValidUUID(id)) {
+      setHighlights(prev => prev.filter(h => h.id !== id));
+      return;
+    }
+
     const headers = await getHeaders();
     try {
       let apiSuccess = false;
