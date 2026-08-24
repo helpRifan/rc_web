@@ -46,4 +46,16 @@ export interface ChatMessage {
   timestamp: string;
 }
 
+export interface GalleryItem {
+  id: string | number;
+  title: string;
+  subtitle?: string;
+  category?: string;
+  image?: string;
+  image_url?: string;
+  story?: string;
+  description?: string;
+  order_index?: number;
+}
+
 export type ClubTab = "home" | "about" | "departments" | "members" | "activities" | "certificates" | "admin" | "achievements";

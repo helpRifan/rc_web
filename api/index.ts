@@ -215,6 +215,58 @@ router.delete("/events/:id", requireAdminAuth, async (req, res) => {
   }
 });
 
+// Operations Recap Highlights / Gallery CRUD Endpoints
+router.get("/gallery", async (req, res) => {
+  if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
+  try {
+    const { data, error } = await supabase
+      .from("gallery")
+      .select("*")
+      .order("order_index", { ascending: true });
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/gallery", requireAdminAuth, async (req, res) => {
+  if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
+  try {
+    const { id, created_at, ...cleanPayload } = req.body;
+    const { data, error } = await supabase.from("gallery").insert([cleanPayload]).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.put("/gallery/:id", requireAdminAuth, async (req, res) => {
+  if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
+  try {
+    const { id } = req.params;
+    const { id: _, created_at: __, ...cleanPayload } = req.body;
+    const { data, error } = await supabase.from("gallery").update(cleanPayload).eq("id", id).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete("/gallery/:id", requireAdminAuth, async (req, res) => {
+  if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
+  try {
+    const { id } = req.params;
+    const { error } = await supabase.from("gallery").delete().eq("id", id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Admin endpoint to toggle simulated features
 let labSettings = {
   labAccess: true,

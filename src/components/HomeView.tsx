@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, Cpu, Hammer, Microscope, Terminal, Lightbulb, Instagram, Linkedin, Mail, ExternalLink, Wifi, X, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { GALLERY_ITEMS, UPCOMING_EVENTS } from "../data";
+import { GalleryItem } from "../types";
 import HeroGallery from "./HeroGallery";
 import { supabase } from "../lib/supabase";
 
@@ -56,20 +57,52 @@ interface HomeViewProps {
 
 export default function HomeView({ onNavigate }: HomeViewProps) {
   const [events, setEvents] = useState<any[]>(UPCOMING_EVENTS);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(GALLERY_ITEMS);
 
   useEffect(() => {
     async function fetchEvents() {
       if (!supabase) return;
       try {
         const { data, error } = await supabase.from("events").select("*").eq("stage", "upcoming").order("date", { ascending: false });
-        if (!error && data) {
+        if (!error && data && data.length > 0) {
           setEvents(data);
         }
       } catch (e) {
         console.error(e);
       }
     }
+
+    async function fetchGallery() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase.from("gallery").select("*").order("order_index", { ascending: true });
+        if (!error && data && data.length > 0) {
+          setGalleryItems(data.map(item => ({
+            ...item,
+            subtitle: item.subtitle || item.category,
+            story: item.story || item.description
+          })));
+        } else {
+          // Fallback to API if supabase direct returns empty
+          const res = await fetch("/api/gallery");
+          if (res.ok) {
+            const apiData = await res.json();
+            if (Array.isArray(apiData) && apiData.length > 0) {
+              setGalleryItems(apiData.map(item => ({
+                ...item,
+                subtitle: item.subtitle || item.category,
+                story: item.story || item.description
+              })));
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Gallery fetch failed, using fallback:", e);
+      }
+    }
+
     fetchEvents();
+    fetchGallery();
   }, []);
 
   // Reusable custom hook for ultra-smooth counting up with deceleration animation
@@ -165,7 +198,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
   };
 
   const [selectedMarqueeCard, setSelectedMarqueeCard] = useState<typeof UPCOMING_EVENTS[number] | null>(null);
-  const [selectedGalleryItem, setSelectedGalleryItem] = useState<typeof GALLERY_ITEMS[number] | null>(null);
+  const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
 
   useEffect(() => {
     if (selectedMarqueeCard || selectedGalleryItem) {
@@ -368,9 +401,9 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
             ref={galleryScrollRef}
             className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-4 pb-4"
           >
-            {GALLERY_ITEMS.map((item, index) => (
+            {galleryItems.map((item, index) => (
               <motion.div
-                key={item.id}
+                key={item.id || index}
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -378,12 +411,20 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                 onClick={() => setSelectedGalleryItem(item)}
                 className="min-w-full sm:min-w-[90%] md:min-w-[80%] snap-center relative overflow-hidden group cursor-pointer h-[400px] md:h-[600px] rounded-xl tech-border bg-zinc-950 flex-shrink-0"
               >
-                <img src={item.image} alt={item.title} className="absolute inset-0 w-full h-full object-cover opacity-100 brightness-110 contrast-125 saturate-150 group-hover:scale-105 group-hover:brightness-125 transition-all duration-700" />
+                <img 
+                  src={item.image_url || item.image || "/gallery/1.jpg"} 
+                  alt={item.title} 
+                  className="absolute inset-0 w-full h-full object-cover opacity-100 brightness-110 contrast-125 saturate-150 group-hover:scale-105 group-hover:brightness-125 transition-all duration-700" 
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent pointer-events-none opacity-90"></div>
                 
                 <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  <span className="font-mono text-xs md:text-sm text-[#e8b828] uppercase tracking-widest mb-3 block">{item.subtitle}</span>
-                  <h3 className="font-sans text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">{item.title}</h3>
+                  <span className="font-mono text-xs md:text-sm text-[#e8b828] uppercase tracking-widest mb-3 block">
+                    {item.subtitle || item.category || "Operations"}
+                  </span>
+                  <h3 className="font-sans text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                    {item.title}
+                  </h3>
                   <span className="text-[10px] md:text-xs uppercase font-mono text-zinc-300 border border-zinc-700 bg-zinc-900/80 backdrop-blur-md px-4 py-2 rounded tracking-wider font-bold inline-flex items-center gap-2 group-hover:border-[#e8b828]/50 group-hover:text-[#e8b828] transition-colors">
                     View Project Details <ArrowRight className="w-4 h-4" />
                   </span>
@@ -587,11 +628,15 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
 
                 {/* Media Schematic Holder */}
                 <div className="relative w-full h-[250px] sm:h-[300px] rounded-xl overflow-hidden bg-zinc-950 border border-zinc-850 flex flex-col items-center justify-center">
-                  <img src={selectedGalleryItem.image} alt={selectedGalleryItem.title} className="absolute inset-0 w-full h-full object-cover" />
+                  <img 
+                    src={selectedGalleryItem.image_url || selectedGalleryItem.image || "/gallery/1.jpg"} 
+                    alt={selectedGalleryItem.title} 
+                    className="absolute inset-0 w-full h-full object-cover" 
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent pointer-events-none opacity-80"></div>
                   
                   <div className="absolute top-4 left-4 bg-zinc-950/80 backdrop-blur-md px-3 py-1.5 rounded border border-[#27272a]/60 text-[10px] font-mono text-[#e8b828] uppercase font-bold tracking-wider z-20">
-                    {selectedGalleryItem.subtitle}
+                    {selectedGalleryItem.subtitle || selectedGalleryItem.category || "Operations"}
                   </div>
                 </div>
 
@@ -602,11 +647,10 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                   <div className="bg-zinc-900/40 border border-zinc-850/60 rounded-lg p-5">
                     <span className="flex items-center gap-2 font-mono text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-3 pb-3 border-b border-zinc-850/80">
                       <Microscope className="w-3.5 h-3.5 text-[#e8b828]" />
-                      MISSION LOG FILE // ENTRY_0x{selectedGalleryItem.id.toString().padStart(4, '0')}
+                      MISSION LOG FILE // ENTRY_0x{String(selectedGalleryItem.id).slice(-4).padStart(4, '0')}
                     </span>
                     <p className="text-zinc-300 text-sm leading-relaxed font-sans">
-                      {/* Using the added story property or fallback */}
-                      {"story" in selectedGalleryItem ? (selectedGalleryItem as any).story : "Log entry currently unavailable for this media slot."}
+                      {selectedGalleryItem.story || selectedGalleryItem.description || "Log entry currently unavailable for this media slot."}
                     </p>
                   </div>
                 </div>

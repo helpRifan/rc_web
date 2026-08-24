@@ -10,6 +10,7 @@ import { CLUB_MEMBERS, DIVISIONAL_MEMBERS, UPCOMING_EVENTS } from "../data";
 import { Member, ActivityLog } from "../types";
 import { supabase, signInWithGoogle, signOut, isAuthorizedStudentEmail, isClubAdmin } from "../lib/supabase";
 import EventsManager from "./EventsManager";
+import HighlightsManager from "./HighlightsManager";
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -472,6 +473,8 @@ export default function AdminView() {
       </header>
 
       <EventsManager />
+
+      <HighlightsManager />
 
       {/* Stats row */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

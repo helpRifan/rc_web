@@ -63,15 +63,17 @@ CREATE TABLE IF NOT EXISTS public.certificates (
 CREATE INDEX IF NOT EXISTS idx_certificates_lookup ON public.certificates(year, roll_number);
 
 -- ==============================================================================
--- 4. TABLE: gallery (Create if missing)
+-- 4. TABLE: gallery (Create if missing or alter)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.gallery (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title TEXT NOT NULL,
-    category TEXT NOT NULL, -- 'Competition', 'R&D', 'Workshop', 'Outreach'
+    subtitle TEXT, -- e.g. 'Embedded Systems', 'R&D Lab'
+    category TEXT, -- 'Competition', 'R&D', 'Workshop', 'Outreach'
     image_url TEXT NOT NULL,
+    story TEXT,    -- Full details narrative shown in 'View Project Details' modal
     description TEXT,
-    year TEXT DEFAULT '2024',
+    year TEXT DEFAULT '2025',
     order_index INTEGER DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -139,6 +141,15 @@ CREATE POLICY "Public Read Certificates" ON public.certificates FOR SELECT USING
 DROP POLICY IF EXISTS "Public Read Gallery" ON public.gallery;
 CREATE POLICY "Public Read Gallery" ON public.gallery FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Auth Insert Gallery" ON public.gallery;
+CREATE POLICY "Auth Insert Gallery" ON public.gallery FOR INSERT TO authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Auth Update Gallery" ON public.gallery;
+CREATE POLICY "Auth Update Gallery" ON public.gallery FOR UPDATE TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Auth Delete Gallery" ON public.gallery;
+CREATE POLICY "Auth Delete Gallery" ON public.gallery FOR DELETE TO authenticated USING (true);
+
 DROP POLICY IF EXISTS "Public Read Collaborations" ON public.collaborations;
 CREATE POLICY "Public Read Collaborations" ON public.collaborations FOR SELECT USING (true);
 
@@ -160,4 +171,22 @@ VALUES
     ('Obstacle Course', 'All-Terrain', 'Technovit26''', 'Extreme terrain traversal challenge requiring rugged suspension kinematics, bridge balancing, trench navigation, and precision pilot control under time trials.', '/gallery/2.jpg', 'Upcoming', 'upcoming', 'https://eventhubcc.vit.ac.in/EventHub/'),
     ('Robosumo', 'Robowars & Sumo', 'Technovit26''', 'High-torque robotic wrestling clash where reinforced combat bots maneuver, counter-leverage, and forcefully eject opponents outside the ring perimeter.', '/gallery/4.jpg', 'Upcoming', 'upcoming', 'https://eventhubcc.vit.ac.in/EventHub/')
 ON CONFLICT DO NOTHING;
+
+-- ==============================================================================
+-- SEED DATA FOR GALLERY (OPERATIONS RECAP HIGHLIGHTS)
+-- ==============================================================================
+INSERT INTO public.gallery (title, subtitle, category, image_url, story, description, order_index)
+VALUES
+    ('Technical Seminar', 'Embedded Systems', 'Workshop', '/gallery/1.jpg', 'Our senior design leads host bi-weekly open seminar sessions for junior members. In this specific session, we walked through the implementation of real-time operating systems (FreeRTOS) on STM32 microcontrollers.', 'Technical Seminar on Embedded Systems', 1),
+    ('Chassis Optimization Test', 'R&D Lab', 'R&D', '/gallery/2.jpg', 'Late night testing in the R&D Lab. Here, the mechanical team is measuring torsional rigidity and load distribution across a new lightweight aluminum chassis design intended for our autonomous rover project.', 'Chassis Optimization Test in R&D Lab', 2),
+    ('Team Collaboration Meeting', 'ERC 24-25 Setup', 'Competition', '/gallery/3.jpg', 'Preparation for the European Rover Challenge (ERC). This was a critical sprint planning meeting where the software, hardware, and management divisions aligned their timelines.', 'Team Collaboration Meeting for ERC 24-25', 3),
+    ('Robotic Arm Testing', 'Sensor Integration', 'R&D', '/gallery/4.jpg', 'A major milestone was achieved when we successfully calibrated our 6-axis robotic manipulator using custom inverse kinematics algorithms.', 'Robotic Arm Testing and Sensor Integration', 4),
+    ('Lecture Audiences', 'Automata Keynote', 'Outreach', '/gallery/5.jpg', 'We frequently invite industry professionals and alumni to present at our organized events. During the ''Automata Keynote'', guest speakers discussed the future of reinforcement learning.', 'Automata Keynote lecture audiences', 5),
+    ('Auditorium Presentations', 'Symposium Showcase', 'Outreach', '/gallery/6.jpg', 'The culmination of a semester''s worth of hard work. Our core teams presented their functional prototypes on the big stage during the annual tech symposium.', 'Auditorium Presentations during Symposium Showcase', 6),
+    ('Precision Soldering', 'Circuit Assembly', 'Workshop', '/gallery/7.jpg', 'Detailed surface-mount component soldering for our custom motor driver circuits. High precision is required to ensure signal integrity across the dual-layer PCBs.', 'Precision Soldering and Circuit Assembly', 7),
+    ('Drone Flight Tests', 'Aerodynamics', 'R&D', '/gallery/8.jpg', 'Outdoor field testing of our autonomous quadcopter fleet. We rigorously verified the visual-inertial odometry algorithms under heavy wind conditions.', 'Drone Flight Tests and Aerodynamics', 8),
+    ('Software Deployment', 'Neural Networks', 'R&D', '/gallery/9.jpg', 'Deploying a lightweight YOLOv8 model directly onto the edge compute modules of our navigation rovers for real-time obstacle detection.', 'Software Deployment with Neural Networks', 9),
+    ('Final Assembly Line', 'Integration Phase', 'Competition', '/gallery/10.jpg', 'The exciting final integration phase where the carbon fiber frame meets the electrical harness and the primary compute stack is powered on for the first time.', 'Final Assembly Line during Integration Phase', 10)
+ON CONFLICT DO NOTHING;
+
 
