@@ -72,7 +72,9 @@ const StrokeText: React.FC<StrokeTextProps> = ({
     () => ({
       fontSize: `${fontSize}px`,
       fontWeight,
-      letterSpacing: `${letterSpacing}px`
+      letterSpacing: `${letterSpacing}px`,
+      whiteSpace: 'pre',
+      fontFamily: 'inherit'
     }),
     [fontSize, fontWeight, letterSpacing]
   );
@@ -247,6 +249,7 @@ const StrokeText: React.FC<StrokeTextProps> = ({
         <text
           ref={strokeTextRef}
           className="select-none"
+          xmlSpace="preserve"
           x="0"
           y="0"
           fill="none"
@@ -258,13 +261,14 @@ const StrokeText: React.FC<StrokeTextProps> = ({
         >
           {characters.map((char, index) => (
             <tspan data-stroke-char key={`s-${index}`}>
-              {char}
+              {char === ' ' ? '\u00A0' : char}
             </tspan>
           ))}
         </text>
 
         <text
           className="select-none"
+          xmlSpace="preserve"
           x="0"
           y="0"
           fill={fillColor}
@@ -274,7 +278,7 @@ const StrokeText: React.FC<StrokeTextProps> = ({
         >
           {characters.map((char, index) => (
             <tspan data-fill-char key={`f-${index}`}>
-              {char}
+              {char === ' ' ? '\u00A0' : char}
             </tspan>
           ))}
         </text>
