@@ -9,24 +9,8 @@ export const ALLOWED_EMAIL_DOMAIN = "@vitstudent.ac.in";
 
 // Designated Core Administrator Emails
 export const ADMIN_EMAILS: string[] = [
-  "ihsan.2023@vitstudent.ac.in",
-  "grace.2023@vitstudent.ac.in",
-  "vinayak.2023@vitstudent.ac.in",
-  "pranjal.2023@vitstudent.ac.in",
-  "aurka.2023@vitstudent.ac.in",
-  "karthik.2023@vitstudent.ac.in",
-  "akshaj.2023@vitstudent.ac.in",
-  "tarun.2023@vitstudent.ac.in",
-  "basil.2023@vitstudent.ac.in",
-  "leni.2023@vitstudent.ac.in",
-  "gurudeep.2023@vitstudent.ac.in",
-  "madhava.2023@vitstudent.ac.in",
-  "goutham.2023@vitstudent.ac.in",
-  "akshita.2023@vitstudent.ac.in",
+  "ihsan.hashir2024@vitstudent.ac.in",
   "aditya.kumarsahu2025@vitstudent.ac.in",
-  "ashton.2023@vitstudent.ac.in",
-  "daksh.2023@vitstudent.ac.in",
-  "robotics.club@vit.ac.in",
   "mohamed.rifanajmal2025@vitstudent.ac.in", // Developer / Administrator
   "rifanajmal@gmail.com"
 ];

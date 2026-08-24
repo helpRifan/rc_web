@@ -35,7 +35,7 @@ try {
 
 // Security: Core Admin list (mirrored from client)
 const ADMIN_EMAILS = [
-  "ihsan.2023@vitstudent.ac.in",
+  "ihsan.hashir2024@vitstudent.ac.in",
   "grace.2023@vitstudent.ac.in",
   "vinayak.2023@vitstudent.ac.in",
   "pranjal.2023@vitstudent.ac.in",
@@ -94,7 +94,7 @@ async function requireAdminAuth(req: any, res: any, next: any) {
 
 async function requireAuth(req: any, res: any, next: any) {
   if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
-  
+
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Unauthorized: Missing or invalid token." });
