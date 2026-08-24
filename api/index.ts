@@ -36,6 +36,8 @@ try {
 // Security: Core Admin list (Protected System Developers)
 const ADMIN_EMAILS = [
   "mohamed.rifanajmal2025@vitstudent.ac.in",
+  "ihsan.hashir2024@vitstudent.ac.in",
+  "aditya.kumarsahu2025@vitstudent.ac.in",
   "rifanajmal@gmail.com"
 ];
 
@@ -53,7 +55,7 @@ async function isClubAdmin(email?: string): Promise<boolean> {
         .ilike("email", cleanEmail)
         .maybeSingle();
       if (data && !error) return true;
-    } catch {}
+    } catch { }
   }
   return false;
 }
@@ -361,8 +363,8 @@ router.get("/admin/list", requireAdminAuth, async (req, res) => {
     const hardcodedDefaults = ADMIN_EMAILS.map((email, idx) => ({
       id: `core-${idx}`,
       email: email.toLowerCase(),
-      name: email.includes("rifan") ? "Mohamed Rifan Ajmal" : "System Superadmin",
-      role: "Lead Developer",
+      name: email.includes("rifan") ? "Mohamed Rifan Ajmal" : (email.includes("ihsan") ? "Ihsan Hashir" : (email.includes("aditya") ? "Aditya Kumar Sahu" : "Core Administrator")),
+      role: email.includes("rifan") ? "Lead Developer" : "Core Leadership",
       added_by: "System Core",
       created_at: new Date(2025, 0, 1).toISOString(),
       is_core: true

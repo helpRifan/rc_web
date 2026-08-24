@@ -79,8 +79,8 @@ export default function AdminAccessManager() {
       const hardcoded = ADMIN_EMAILS.filter(e => !existingEmails.has(e.toLowerCase())).map((e, idx) => ({
         id: `core-${idx}`,
         email: e,
-        name: e.includes("rifan") ? "Mohamed Rifan Ajmal" : "System Superadmin",
-        role: "Lead Developer",
+        name: e.includes("rifan") ? "Mohamed Rifan Ajmal" : (e.includes("ihsan") ? "Ihsan Hashir" : (e.includes("aditya") ? "Aditya Kumar Sahu" : "Core Administrator")),
+        role: e.includes("rifan") ? "Lead Developer" : "Core Leadership",
         added_by: "System Core",
         created_at: new Date(2025, 0, 1).toISOString(),
         is_core: true
