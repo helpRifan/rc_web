@@ -7,7 +7,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const ALLOWED_EMAIL_DOMAIN = "@vitstudent.ac.in";
 
-// Designated Core Administrator Emails
+// Designated Core Administrator Emails (Protected System Developers)
 export const ADMIN_EMAILS: string[] = [
   "ihsan.hashir2024@vitstudent.ac.in",
   "aditya.kumarsahu2025@vitstudent.ac.in",
@@ -40,7 +40,7 @@ export async function checkClubAdminAsync(email?: string | null): Promise<boolea
         .ilike("email", cleanEmail)
         .maybeSingle();
       if (data && !error) return true;
-    } catch {}
+    } catch { }
   }
   return false;
 }

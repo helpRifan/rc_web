@@ -33,26 +33,8 @@ try {
   console.error("ImageKit initialization error:", e);
 }
 
-// Security: Core Admin list (mirrored from client)
+// Security: Core Admin list (Protected System Developers)
 const ADMIN_EMAILS = [
-  "ihsan.hashir2024@vitstudent.ac.in",
-  "grace.2023@vitstudent.ac.in",
-  "vinayak.2023@vitstudent.ac.in",
-  "pranjal.2023@vitstudent.ac.in",
-  "aurka.2023@vitstudent.ac.in",
-  "karthik.2023@vitstudent.ac.in",
-  "akshaj.2023@vitstudent.ac.in",
-  "tarun.2023@vitstudent.ac.in",
-  "basil.2023@vitstudent.ac.in",
-  "leni.2023@vitstudent.ac.in",
-  "gurudeep.2023@vitstudent.ac.in",
-  "madhava.2023@vitstudent.ac.in",
-  "goutham.2023@vitstudent.ac.in",
-  "akshita.2023@vitstudent.ac.in",
-  "aditya.kumarsahu2025@vitstudent.ac.in",
-  "ashton.2023@vitstudent.ac.in",
-  "daksh.2023@vitstudent.ac.in",
-  "robotics.club@vit.ac.in",
   "mohamed.rifanajmal2025@vitstudent.ac.in",
   "rifanajmal@gmail.com"
 ];
@@ -379,8 +361,8 @@ router.get("/admin/list", requireAdminAuth, async (req, res) => {
     const hardcodedDefaults = ADMIN_EMAILS.map((email, idx) => ({
       id: `core-${idx}`,
       email: email.toLowerCase(),
-      name: email.includes("rifan") ? "Mohamed Rifan Ajmal" : (email.includes("ihsan") ? "Ihsan Hashir" : (email.includes("aditya") ? "Aditya Kumar Sahu" : "Core Administrator")),
-      role: "System Core Lead",
+      name: email.includes("rifan") ? "Mohamed Rifan Ajmal" : "System Superadmin",
+      role: "Lead Developer",
       added_by: "System Core",
       created_at: new Date(2025, 0, 1).toISOString(),
       is_core: true
@@ -478,18 +460,22 @@ router.post("/admin/invite", requireAdminAuth, async (req: any, res: any) => {
 });
 
 router.delete("/admin/remove/:id", requireAdminAuth, async (req: any, res: any) => {
-  const { id } = req.params;
+  const target = decodeURIComponent(req.params.id || "").trim();
   if (!supabase) return res.status(503).json({ error: "Supabase not configured." });
 
+  // Protect system developer accounts
+  if (ADMIN_EMAILS.some(e => e.toLowerCase() === target.toLowerCase())) {
+    return res.status(403).json({ error: "Protected developer accounts cannot be removed." });
+  }
+
   try {
-    // Check if UUID or email
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
     let query = supabase.from("admins").delete();
 
     if (isUUID) {
-      query = query.eq("id", id);
+      query = query.eq("id", target);
     } else {
-      query = query.ilike("email", id);
+      query = query.ilike("email", target);
     }
 
     const { error } = await query;

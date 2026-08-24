@@ -79,8 +79,8 @@ export default function AdminAccessManager() {
       const hardcoded = ADMIN_EMAILS.filter(e => !existingEmails.has(e.toLowerCase())).map((e, idx) => ({
         id: `core-${idx}`,
         email: e,
-        name: e.includes("rifan") ? "Mohamed Rifan Ajmal" : (e.includes("ihsan") ? "Ihsan Hashir" : (e.includes("aditya") ? "Aditya Kumar Sahu" : "Core Administrator")),
-        role: "System Core Lead",
+        name: e.includes("rifan") ? "Mohamed Rifan Ajmal" : "System Superadmin",
+        role: "Lead Developer",
         added_by: "System Core",
         created_at: new Date(2025, 0, 1).toISOString(),
         is_core: true
@@ -163,20 +163,34 @@ export default function AdminAccessManager() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || "";
 
-      const res = await fetch(`/api/admin/remove/${admin.id}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
-      });
+      // Target email encoded
+      const targetParam = encodeURIComponent(admin.email);
+      let removedViaApi = false;
 
-      if (!res.ok) {
-        // Direct Supabase fallback
-        await supabase.from("admins").delete().ilike("email", admin.email);
+      try {
+        const res = await fetch(`/api/admin/remove/${targetParam}`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) removedViaApi = true;
+      } catch (err) {
+        console.warn("API delete error, attempting direct database fallback:", err);
       }
+
+      if (!removedViaApi) {
+        // Direct Supabase fallback
+        const { error: sbErr } = await supabase.from("admins").delete().ilike("email", admin.email);
+        if (sbErr) console.warn("Supabase direct delete warning:", sbErr);
+      }
+
+      // Optimistically update list
+      setAdmins(prev => prev.filter(a => a.email.toLowerCase() !== admin.email.toLowerCase()));
 
       setFeedback({
         type: "success",
         text: `Revoked clearance for ${admin.email}.`
       });
+
       await fetchAdmins();
     } catch (e: any) {
       alert("Failed to revoke: " + (e.message || "Unknown error"));
