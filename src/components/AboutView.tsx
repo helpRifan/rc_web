@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Cpu, Network, Router, X, BookOpen, Clock, Activity, CheckCircle, Wrench, MapPin, Sparkles } from "lucide-react";
 import DriftWall, { DriftWallItem } from "./DriftWall";
+import StrokeText from "./StrokeText";
 import { GALLERY_ITEMS } from "../data";
 import { supabase } from "../lib/supabase";
 
@@ -50,7 +51,7 @@ export default function AboutView() {
         className="space-y-xxl pb-xl"
       >
         {/* Full-Bleed 3D DriftWall Interactive Header (Full Viewport Width, unboxed) */}
-        <section className="relative w-screen left-1/2 right-1/2 -mx-[50vw] h-[480px] sm:h-[580px] md:h-[680px] overflow-hidden -mt-12 mb-16 bg-transparent">
+        <section className="relative w-screen left-1/2 right-1/2 -mx-[50vw] h-[480px] sm:h-[580px] md:h-[680px] overflow-hidden -mt-12 mb-16 bg-transparent flex items-center justify-center">
           <DriftWall
             items={driftItems}
             columns={7}
@@ -79,12 +80,26 @@ export default function AboutView() {
           <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#0c0c0e] via-[#0c0c0e]/70 to-transparent pointer-events-none" />
           <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0c0c0e] via-[#0c0c0e]/70 to-transparent pointer-events-none" />
 
-          {/* Ambient Overlay Tag */}
-          <div className="absolute top-6 left-6 sm:left-12 z-10 pointer-events-none flex items-center gap-2.5 bg-zinc-950/80 backdrop-blur-md border border-zinc-800/80 px-4 py-2 rounded-full shadow-2xl">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#e8b828] animate-pulse"></span>
-            <span className="font-mono text-xs text-zinc-300 font-semibold tracking-wider uppercase">
-              Operations &amp; R&amp;D Highlights Wall
-            </span>
+          {/* Centered Floating StrokeText Title */}
+          <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center text-center px-4">
+            <div className="w-full max-w-5xl flex justify-center drop-shadow-[0_12px_40px_rgba(0,0,0,0.95)]">
+              <StrokeText
+                text="Robotics Club"
+                strokeColor="#6366F1"
+                fillColor="#ffffff"
+                strokeWidth={2.2}
+                drawDuration={1.6}
+                fillDelay={0.15}
+                stagger={0.12}
+                ease="sine.inOut"
+                trigger="mount"
+                fillMode="fade"
+                fontSize={108}
+                fontWeight={800}
+                letterSpacing={1.5}
+                reverse={false}
+              />
+            </div>
           </div>
         </section>
 
