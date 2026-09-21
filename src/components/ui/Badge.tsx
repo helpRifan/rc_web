@@ -1,9 +1,11 @@
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes, ReactNode } from 'react';
 
 type Tone = 'neutral' | 'blue' | 'gold';
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   tone?: Tone;
+  children?: ReactNode;
+  className?: string;
 }
 
 const toneClasses: Record<Tone, string> = {
