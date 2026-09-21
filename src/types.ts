@@ -25,9 +25,12 @@ export interface DeploymentEvent {
   title: string;
   date: string;
   image: string;
+  image_url?: string;
   desc: string;
+  description?: string;
   status: "Registration Open" | "Coming Soon" | string;
   registrationLink?: string;
+  registration_link?: string;
 }
 
 export interface ArchiveItem {
