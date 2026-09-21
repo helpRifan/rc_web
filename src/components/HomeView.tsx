@@ -524,7 +524,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                 {/* Header section with Icon */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 border-b border-zinc-900 pb-5">
                   <div className="w-16 h-16 rounded overflow-hidden bg-zinc-800">
-                    <img src={selectedMarqueeCard.image_url || selectedMarqueeCard.image} alt={selectedMarqueeCard.title} className="w-full h-full object-cover" />
+                    <img src={selectedMarqueeCard.image} alt={selectedMarqueeCard.title} className="w-full h-full object-cover" />
                   </div>
                   <div className="space-y-1">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-zinc-900 border border-zinc-850 text-[#e8b828] font-mono text-[9px] uppercase tracking-wider font-bold">
@@ -540,7 +540,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                     EVENT DETAILS
                   </span>
                   <p className="text-zinc-300 text-sm leading-relaxed">
-                    {selectedMarqueeCard.description || selectedMarqueeCard.desc}
+                    {selectedMarqueeCard.desc}
                   </p>
                 </div>
 
@@ -564,7 +564,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                     Redirects to VITC Event Hub.<br/>Search for <strong className="text-zinc-200">"{selectedMarqueeCard.title}"</strong> to register.
                   </span>
                   <a 
-                    href={selectedMarqueeCard.registration_link || selectedMarqueeCard.registrationLink || "https://eventhubcc.vit.ac.in/EventHub/"}
+                    href={selectedMarqueeCard.registrationLink || "https://eventhubcc.vit.ac.in/EventHub/"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`w-full font-sans text-sm font-semibold h-12 rounded-md transition-all duration-300 flex items-center justify-center select-none mt-2 ${
