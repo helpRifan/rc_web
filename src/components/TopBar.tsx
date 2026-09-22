@@ -1,6 +1,7 @@
 import { LogOut, Menu } from 'lucide-react';
 import { AuthUserSummary, ClubTab } from '../types';
 import { Button } from './ui/Button';
+import { CLUB_NAV_ITEMS } from '../nav';
 
 interface TopBarProps {
   activeTab: ClubTab;
@@ -12,15 +13,7 @@ interface TopBarProps {
   loginPending?: boolean;
 }
 
-const NAV_ITEMS: { id: ClubTab; label: string }[] = [
-  { id: 'home', label: 'Home' },
-  { id: 'about', label: 'About' },
-  { id: 'achievements', label: 'Achievements' },
-  { id: 'departments', label: 'Departments' },
-  { id: 'members', label: 'Members' },
-  { id: 'activities', label: 'Activities' },
-  { id: 'certificates', label: 'Certificates' },
-];
+const NAV_ITEMS = CLUB_NAV_ITEMS.filter((item) => item.id !== 'admin');
 
 export function TopBar({
   activeTab,
