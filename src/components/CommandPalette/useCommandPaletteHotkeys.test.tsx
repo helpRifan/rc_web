@@ -19,6 +19,9 @@ describe('useCommandPaletteHotkeys', () => {
     expect(screen.getByText('palette is closed')).toBeInTheDocument();
     await userEvent.keyboard('{Control>}k{/Control}');
     expect(screen.getByText('palette is open')).toBeInTheDocument();
+    // Simulate focus landing inside a text field, as it would when the real
+    // palette's search box autofocuses on open.
+    await userEvent.click(screen.getByLabelText('some field'));
     await userEvent.keyboard('{Control>}k{/Control}');
     expect(screen.getByText('palette is closed')).toBeInTheDocument();
   });

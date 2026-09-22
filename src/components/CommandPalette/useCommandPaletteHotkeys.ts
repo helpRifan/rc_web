@@ -24,6 +24,8 @@ export function useCommandPaletteHotkeys(onNavigate: (tab: ClubTab) => void) {
   const [open, setOpen] = useState(false);
   const awaitingChordRef = useRef(false);
   const chordTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onNavigateRef = useRef(onNavigate);
+  onNavigateRef.current = onNavigate;
 
   useEffect(() => {
     function clearChordWindow() {
@@ -35,10 +37,6 @@ export function useCommandPaletteHotkeys(onNavigate: (tab: ClubTab) => void) {
     }
 
     function handleKeyDown(e: KeyboardEvent) {
-      if (isTypingTarget(e.target)) return;
-
-      const isModifierCombo = e.metaKey || e.ctrlKey || e.altKey;
-
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setOpen((prev) => !prev);
@@ -46,6 +44,9 @@ export function useCommandPaletteHotkeys(onNavigate: (tab: ClubTab) => void) {
         return;
       }
 
+      if (isTypingTarget(e.target)) return;
+
+      const isModifierCombo = e.metaKey || e.ctrlKey || e.altKey;
       if (isModifierCombo) return;
 
       if (awaitingChordRef.current) {
@@ -53,7 +54,7 @@ export function useCommandPaletteHotkeys(onNavigate: (tab: ClubTab) => void) {
         clearChordWindow();
         if (target) {
           e.preventDefault();
-          onNavigate(target);
+          onNavigateRef.current(target);
         }
         return;
       }
@@ -69,7 +70,7 @@ export function useCommandPaletteHotkeys(onNavigate: (tab: ClubTab) => void) {
       document.removeEventListener('keydown', handleKeyDown);
       clearChordWindow();
     };
-  }, [onNavigate]);
+  }, []);
 
   return { open, setOpen };
 }
