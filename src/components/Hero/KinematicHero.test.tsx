@@ -5,9 +5,19 @@ vi.mock('./useShouldRenderWebGL', () => ({
   useShouldRenderWebGL: vi.fn(),
 }));
 
-vi.mock('./KinematicScene', () => ({
-  default: () => <div data-testid="kinematic-scene-stub">3D scene</div>,
-}));
+// Stands in for the real scene: signals readiness on mount, the way the real Canvas's onCreated
+// does once its WebGL renderer exists.
+vi.mock('./KinematicScene', async () => {
+  const { useEffect } = await import('react');
+  return {
+    default: ({ onReady }: { onReady?: () => void }) => {
+      useEffect(() => {
+        onReady?.();
+      }, [onReady]);
+      return <div data-testid="kinematic-scene-stub">3D scene</div>;
+    },
+  };
+});
 
 import { useShouldRenderWebGL } from './useShouldRenderWebGL';
 import KinematicHero from './KinematicHero';
@@ -28,13 +38,20 @@ describe('KinematicHero', () => {
     });
   });
 
-  it('never renders the fallback SVG\'s gear/node markers once the 3D scene is in (only one visual layer is meaningfully "shown")', async () => {
+  it('fades the fallback layer out once the 3D scene reports it is ready', async () => {
     vi.mocked(useShouldRenderWebGL).mockReturnValue(true);
     render(<KinematicHero />);
+    const fallbackLayer = screen.getByTestId('hero-fallback-layer');
+    // Before the scene is ready the fallback is fully shown.
+    expect(fallbackLayer).toHaveStyle({ opacity: '1' });
     await waitFor(() => {
       expect(screen.getByTestId('kinematic-scene-stub')).toBeInTheDocument();
     });
-    // Both layers may remain mounted during a CSS/opacity crossfade — that's fine.
-    // What matters is the 3D scene mounted at all, proven above.
+    await waitFor(
+      () => {
+        expect(fallbackLayer).toHaveStyle({ opacity: '0' });
+      },
+      { timeout: 3000 },
+    );
   });
 });
