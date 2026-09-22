@@ -72,7 +72,7 @@ export function TopBar({
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border-subtle text-fg-muted hover:text-fg-primary hover:border-border-default transition-colors cursor-pointer"
           >
             <Search className="w-3.5 h-3.5" />
-            <span className="font-mono text-xs">⌘K</span>
+            <span className="font-mono text-xs">Search</span>
           </button>
           {authUser ? (
             <button
