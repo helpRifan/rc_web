@@ -138,6 +138,16 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Respect the user's motion preference by disabling non-essential animation/transition motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Industrial blueprint/grid animation and styling */
 .industrial-grid {
   background-size: 40px 40px;
