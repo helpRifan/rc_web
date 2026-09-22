@@ -1,12 +1,18 @@
+import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { X } from 'lucide-react';
-import { ClubTab } from '../types';
+import { LogOut, X } from 'lucide-react';
+import { AuthUserSummary, ClubTab } from '../types';
+import { Button } from './ui/Button';
 
 interface MobileDrawerProps {
   open: boolean;
   activeTab: ClubTab;
   onNavigate: (tab: ClubTab) => void;
   onClose: () => void;
+  authUser: AuthUserSummary | null;
+  onLoginClick: () => void;
+  onLogoutClick: () => void;
+  loginPending?: boolean;
 }
 
 const NAV_ITEMS: { id: ClubTab; label: string }[] = [
@@ -19,7 +25,33 @@ const NAV_ITEMS: { id: ClubTab; label: string }[] = [
   { id: 'certificates', label: 'Certificates' },
 ];
 
-export function MobileDrawer({ open, activeTab, onNavigate, onClose }: MobileDrawerProps) {
+export function MobileDrawer({
+  open,
+  activeTab,
+  onNavigate,
+  onClose,
+  authUser,
+  onLoginClick,
+  onLogoutClick,
+  loginPending,
+}: MobileDrawerProps) {
+  useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open, onClose]);
+
   return (
     <AnimatePresence>
       {open && (
@@ -48,6 +80,51 @@ export function MobileDrawer({ open, activeTab, onNavigate, onClose }: MobileDra
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            <div className="mb-4 pb-4 border-b border-border-subtle">
+              {authUser ? (
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-sm text-fg-muted">
+                    {authUser.avatarUrl ? (
+                      <img
+                        src={authUser.avatarUrl}
+                        alt={authUser.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="w-8 h-8 rounded-full bg-accent-blue-dim/30 flex items-center justify-center text-xs font-mono text-accent-blue-bright">
+                        {authUser.name.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                    <span className="text-fg-primary font-medium">{authUser.name}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onLogoutClick();
+                      onClose();
+                    }}
+                    className="flex items-center gap-1.5 text-sm text-fg-muted hover:text-fg-primary transition-colors cursor-pointer"
+                    title="Sign out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  disabled={loginPending}
+                  onClick={() => {
+                    onLoginClick();
+                    onClose();
+                  }}
+                >
+                  Student login
+                </Button>
+              )}
+            </div>
+
             {NAV_ITEMS.map((item, i) => (
               <motion.a
                 key={item.id}

@@ -30,7 +30,7 @@ export function Footer({ onNavigate }: FooterProps) {
       <div className="w-full max-w-container-max mx-auto px-gutter grid grid-cols-1 md:grid-cols-12 gap-12 border-b border-border-subtle pb-12 mb-8">
         <div className="md:col-span-5 space-y-6">
           <div className="flex items-center gap-3">
-            <img src="/logo-nobg.png" alt="Robotics Club logo" className="w-11 h-11 object-contain" />
+            <img src="/logo.png" alt="Robotics Club logo" className="w-11 h-11 object-contain" />
             <span className="font-display font-semibold text-fg-subtle text-lg">Robotics Club</span>
           </div>
           <p className="text-sm text-fg-muted leading-relaxed max-w-sm">

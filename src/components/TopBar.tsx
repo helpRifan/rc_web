@@ -1,11 +1,6 @@
 import { LogOut, Menu } from 'lucide-react';
-import { ClubTab } from '../types';
+import { AuthUserSummary, ClubTab } from '../types';
 import { Button } from './ui/Button';
-
-interface AuthUserSummary {
-  name: string;
-  avatarUrl?: string;
-}
 
 interface TopBarProps {
   activeTab: ClubTab;
@@ -14,6 +9,7 @@ interface TopBarProps {
   onLoginClick: () => void;
   onLogoutClick: () => void;
   onMenuToggle: () => void;
+  loginPending?: boolean;
 }
 
 const NAV_ITEMS: { id: ClubTab; label: string }[] = [
@@ -33,6 +29,7 @@ export function TopBar({
   onLoginClick,
   onLogoutClick,
   onMenuToggle,
+  loginPending,
 }: TopBarProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-border-subtle bg-bg-deep/90 backdrop-blur-md">
@@ -45,7 +42,7 @@ export function TopBar({
           }}
           className="flex items-center gap-2.5 shrink-0"
         >
-          <img src="/logo-nobg.png" alt="Robotics Club logo" className="w-8 h-8 object-contain" />
+          <img src="/logo.png" alt="Robotics Club logo" className="w-8 h-8 object-contain" />
           <span className="font-display font-semibold text-fg-subtle text-base hidden sm:inline">
             Robotics Club
           </span>
@@ -91,7 +88,7 @@ export function TopBar({
               <LogOut className="w-3.5 h-3.5" />
             </button>
           ) : (
-            <Button variant="secondary" size="sm" onClick={onLoginClick}>
+            <Button variant="secondary" size="sm" onClick={onLoginClick} disabled={loginPending}>
               Student login
             </Button>
           )}

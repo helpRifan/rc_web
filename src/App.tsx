@@ -125,6 +125,7 @@ export default function App() {
         authUser={authUserSummary}
         onLoginClick={handleGoogleLogin}
         onLogoutClick={handleLogout}
+        loginPending={authLoading}
       >
         <AnimatePresence mode="wait">
           <motion.div

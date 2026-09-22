@@ -62,3 +62,8 @@ export interface GalleryItem {
 }
 
 export type ClubTab = "home" | "about" | "departments" | "members" | "activities" | "certificates" | "admin" | "achievements";
+
+export interface AuthUserSummary {
+  name: string;
+  avatarUrl?: string;
+}
