@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, Cpu, Hammer, Microscope, Terminal, Lightbulb, Instagram, Linkedin, Mail, ExternalLink, Wifi, X, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { GALLERY_ITEMS, UPCOMING_EVENTS } from "../data";
 import { GalleryItem } from "../types";
-import HeroGallery from "./HeroGallery";
+import KinematicHero from "./Hero/KinematicHero";
 import { supabase } from "../lib/supabase";
 
 const SOCIAL_NODES = [
@@ -221,15 +221,12 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
     >
       {/* Hero Section containing stats counter to display above the fold */}
       <section className="relative min-h-[92vh] flex flex-col justify-between pt-24 pb-12 overflow-hidden border-b border-dashed border-zinc-800">
-        <div className="absolute inset-0 bg-[#0c0c0e] z-0"></div>
+        <KinematicHero />
 
         {/* Tech decorative target lines */}
         <div className="absolute bottom-0 left-0 w-full h-[1px] bg-zinc-800 z-0"></div>
         <div className="absolute left-6 md:left-gutter top-0 h-full w-[1px] bg-zinc-800 z-0 hidden md:block"></div>
         <div className="absolute right-6 md:right-gutter top-0 h-full w-[1px] bg-zinc-800 z-0 hidden md:block"></div>
-
-        {/* Floating Background Image Fences */}
-        <HeroGallery />
 
         <div className="relative z-10 w-full max-w-container-max mx-auto px-gutter text-center space-y-md md:space-y-lg flex-grow flex flex-col justify-center max-w-4xl pointer-events-none">
           <div className="pointer-events-auto flex flex-col items-center justify-center">
