@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import {
@@ -94,6 +94,15 @@ export function SceneContents() {
   const groupRef = useRef<THREE.Group>(null);
   const { camera } = useThree();
   const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    function handleScroll() {
+      const progress = Math.min(window.scrollY / window.innerHeight, 1);
+      setScrollProgress(progress);
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useFrame(() => {
     if (!groupRef.current) return;

@@ -1,5 +1,5 @@
 import ReactThreeTestRenderer from '@react-three/test-renderer';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type * as THREE from 'three';
 import { SceneContents } from './KinematicScene';
 
@@ -28,5 +28,14 @@ describe('KinematicScene', () => {
     const gearMeshes = renderer.scene.findAllByProps({ 'data-gear': true });
     const geometryTypes = gearMeshes.map((mesh) => (mesh.instance as THREE.Mesh).geometry.type);
     expect(geometryTypes.every((type) => type === 'TorusGeometry')).toBe(true);
+  });
+
+  it('registers and cleans up a scroll listener to drive the camera pull-back', async () => {
+    const addSpy = vi.spyOn(window, 'addEventListener');
+    const removeSpy = vi.spyOn(window, 'removeEventListener');
+    const renderer = await ReactThreeTestRenderer.create(<SceneContents />);
+    expect(addSpy).toHaveBeenCalledWith('scroll', expect.any(Function), expect.objectContaining({ passive: true }));
+    await renderer.unmount();
+    expect(removeSpy).toHaveBeenCalledWith('scroll', expect.any(Function));
   });
 });
