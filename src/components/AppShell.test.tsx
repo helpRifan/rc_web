@@ -59,4 +59,15 @@ describe('AppShell', () => {
     await userEvent.click(within(drawerNav).getByRole('button', { name: /sign out/i }));
     expect(onLogoutClick).toHaveBeenCalledOnce();
   });
+
+  it('opens the command palette on Ctrl+K', async () => {
+    render(
+      <AppShell activeTab="home" onNavigate={NOOP} authUser={null} onLoginClick={NOOP} onLogoutClick={NOOP}>
+        <p>page content</p>
+      </AppShell>,
+    );
+    expect(screen.queryByPlaceholderText('Search or jump to...')).not.toBeInTheDocument();
+    await userEvent.keyboard('{Control>}k{/Control}');
+    expect(screen.getByPlaceholderText('Search or jump to...')).toBeInTheDocument();
+  });
 });

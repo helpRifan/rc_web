@@ -1,4 +1,4 @@
-import { LogOut, Menu } from 'lucide-react';
+import { LogOut, Menu, Search } from 'lucide-react';
 import { AuthUserSummary, ClubTab } from '../types';
 import { Button } from './ui/Button';
 import { CLUB_NAV_ITEMS } from '../nav';
@@ -10,6 +10,7 @@ interface TopBarProps {
   onLoginClick: () => void;
   onLogoutClick: () => void;
   onMenuToggle: () => void;
+  onPaletteOpen: () => void;
   loginPending?: boolean;
 }
 
@@ -22,6 +23,7 @@ export function TopBar({
   onLoginClick,
   onLogoutClick,
   onMenuToggle,
+  onPaletteOpen,
   loginPending,
 }: TopBarProps) {
   return (
@@ -64,6 +66,14 @@ export function TopBar({
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={onPaletteOpen}
+            aria-label="Search"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border-subtle text-fg-muted hover:text-fg-primary hover:border-border-default transition-colors cursor-pointer"
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span className="font-mono text-xs">⌘K</span>
+          </button>
           {authUser ? (
             <button
               onClick={onLogoutClick}

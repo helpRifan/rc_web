@@ -15,6 +15,7 @@ describe('TopBar', () => {
         onLoginClick={NOOP}
         onLogoutClick={NOOP}
         onMenuToggle={NOOP}
+        onPaletteOpen={NOOP}
       />,
     );
     for (const label of ['Home', 'About', 'Achievements', 'Departments', 'Members', 'Activities', 'Certificates']) {
@@ -31,6 +32,7 @@ describe('TopBar', () => {
         onLoginClick={NOOP}
         onLogoutClick={NOOP}
         onMenuToggle={NOOP}
+        onPaletteOpen={NOOP}
       />,
     );
     expect(screen.getByRole('link', { name: 'Members' })).toHaveAttribute('aria-current', 'page');
@@ -46,6 +48,7 @@ describe('TopBar', () => {
         onLoginClick={NOOP}
         onLogoutClick={NOOP}
         onMenuToggle={NOOP}
+        onPaletteOpen={NOOP}
       />,
     );
     await userEvent.click(screen.getByRole('link', { name: 'About' }));
@@ -62,6 +65,7 @@ describe('TopBar', () => {
         onLoginClick={onLoginClick}
         onLogoutClick={NOOP}
         onMenuToggle={NOOP}
+        onPaletteOpen={NOOP}
       />,
     );
     await userEvent.click(screen.getByRole('button', { name: /student login/i }));
@@ -77,6 +81,7 @@ describe('TopBar', () => {
         onLoginClick={NOOP}
         onLogoutClick={NOOP}
         onMenuToggle={NOOP}
+        onPaletteOpen={NOOP}
       />,
     );
     expect(screen.getByText('Karthik')).toBeInTheDocument();
@@ -92,9 +97,27 @@ describe('TopBar', () => {
         onLoginClick={NOOP}
         onLogoutClick={NOOP}
         onMenuToggle={onMenuToggle}
+        onPaletteOpen={NOOP}
       />,
     );
     await userEvent.click(screen.getByRole('button', { name: /open menu/i }));
     expect(onMenuToggle).toHaveBeenCalledOnce();
+  });
+
+  it('calls onPaletteOpen when the command palette trigger is clicked', async () => {
+    const onPaletteOpen = vi.fn();
+    render(
+      <TopBar
+        activeTab="home"
+        onNavigate={NOOP}
+        authUser={null}
+        onLoginClick={NOOP}
+        onLogoutClick={NOOP}
+        onMenuToggle={NOOP}
+        onPaletteOpen={onPaletteOpen}
+      />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /search/i }));
+    expect(onPaletteOpen).toHaveBeenCalledOnce();
   });
 });

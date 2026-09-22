@@ -3,6 +3,8 @@ import { AuthUserSummary, ClubTab } from '../types';
 import { TopBar } from './TopBar';
 import { MobileDrawer } from './MobileDrawer';
 import { Footer } from './Footer';
+import { CommandPalette } from './CommandPalette/CommandPalette';
+import { useCommandPaletteHotkeys } from './CommandPalette/useCommandPaletteHotkeys';
 
 interface AppShellProps {
   activeTab: ClubTab;
@@ -24,6 +26,7 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { open: paletteOpen, setOpen: setPaletteOpen } = useCommandPaletteHotkeys(onNavigate);
 
   return (
     <div className="min-h-screen flex flex-col bg-bg-deep text-fg-muted overflow-x-hidden">
@@ -34,6 +37,7 @@ export function AppShell({
         onLoginClick={onLoginClick}
         onLogoutClick={onLogoutClick}
         onMenuToggle={() => setDrawerOpen(true)}
+        onPaletteOpen={() => setPaletteOpen(true)}
         loginPending={loginPending}
       />
       <MobileDrawer
@@ -46,6 +50,7 @@ export function AppShell({
         onLogoutClick={onLogoutClick}
         loginPending={loginPending}
       />
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onNavigate={onNavigate} />
       <main className="flex-grow w-full max-w-container-max mx-auto px-gutter py-12 relative z-10">
         {children}
       </main>
