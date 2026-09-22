@@ -86,10 +86,17 @@ function NeuralOverlay({ gears }: { gears: ReturnType<typeof buildGearLayout> })
   return (
     <group>
       <points geometry={pointsGeometry} data-neural-points>
-        <pointsMaterial color="#619AC3" size={0.035} sizeAttenuation transparent opacity={0.85} />
+        <pointsMaterial
+          color="#619AC3"
+          size={0.035}
+          sizeAttenuation
+          transparent
+          opacity={0.85}
+          depthTest={false}
+        />
       </points>
       <lineSegments geometry={lineGeometry} data-neural-edges>
-        <lineBasicMaterial color="#4A8DB7" transparent opacity={0.25} />
+        <lineBasicMaterial color="#4A8DB7" transparent opacity={0.25} depthTest={false} />
       </lineSegments>
     </group>
   );
