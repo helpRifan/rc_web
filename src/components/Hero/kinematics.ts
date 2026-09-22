@@ -23,6 +23,12 @@ export interface GearSpec {
 
 const RATIO_CYCLE = [1, 2, 3];
 
+// Radii cycle on a period of 5, independent of RATIO_CYCLE's period of 3, so radius is never a
+// function of the ratio. Values are ordered so that, in the default 5-gear layout (ratios
+// [1, 2, 3, 1, 2]), larger gears get the slower ratios — as with real meshing gears — rather than
+// the largest gear also spinning fastest.
+const RADIUS_CYCLE = [0.9, 0.72, 0.6, 0.85, 0.7];
+
 export function buildGearLayout(count: number): GearSpec[] {
   const gears: GearSpec[] = [];
   const spacing = 1.6;
@@ -31,7 +37,7 @@ export function buildGearLayout(count: number): GearSpec[] {
   for (let i = 0; i < count; i++) {
     gears.push({
       position: [startX + i * spacing, i % 2 === 0 ? 0 : 0.4, -(i % 3) * 0.3],
-      radius: 0.6 + (i % 3) * 0.15,
+      radius: RADIUS_CYCLE[i % RADIUS_CYCLE.length],
       ratio: RATIO_CYCLE[i % RATIO_CYCLE.length],
     });
   }
