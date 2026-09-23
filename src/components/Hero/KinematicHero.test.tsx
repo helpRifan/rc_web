@@ -54,4 +54,31 @@ describe('KinematicHero', () => {
       { timeout: 3000 },
     );
   });
+
+  it('re-shows the fallback if WebGL becomes disallowed after the scene had already reported ready', async () => {
+    vi.mocked(useShouldRenderWebGL).mockReturnValue(true);
+    const { rerender } = render(<KinematicHero />);
+    const fallbackLayer = screen.getByTestId('hero-fallback-layer');
+    await waitFor(() => {
+      expect(screen.getByTestId('kinematic-scene-stub')).toBeInTheDocument();
+    });
+    await waitFor(
+      () => {
+        expect(fallbackLayer).toHaveStyle({ opacity: '0' });
+      },
+      { timeout: 3000 },
+    );
+
+    // Simulate useShouldRenderWebGL flipping to false on a later render (e.g. a resize across
+    // the 768px breakpoint, a phone rotation, or the OS reduced-motion setting toggling). The
+    // scene subtree unmounts, but sceneReady is still stale from before — the fallback must not
+    // stay hidden.
+    vi.mocked(useShouldRenderWebGL).mockReturnValue(false);
+    rerender(<KinematicHero />);
+
+    expect(screen.queryByTestId('kinematic-scene-stub')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(fallbackLayer).toHaveStyle({ opacity: '1' });
+    });
+  });
 });

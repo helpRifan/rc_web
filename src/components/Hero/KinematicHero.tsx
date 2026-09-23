@@ -33,7 +33,7 @@ export default function KinematicHero() {
         data-testid="hero-fallback-layer"
         className="absolute inset-0"
         initial={false}
-        animate={{ opacity: sceneReady ? 0 : 1 }}
+        animate={{ opacity: shouldRenderWebGL && sceneReady ? 0 : 1 }}
         transition={{ duration: 0.6 }}
       >
         <HeroFallback />
