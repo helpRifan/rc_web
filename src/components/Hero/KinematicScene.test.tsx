@@ -54,11 +54,11 @@ describe('KinematicScene', () => {
     expect(lines.length).toBe(1);
   });
 
-  it('gear meshes use torus geometry per the spec', async () => {
+  it('gear meshes use extruded gear-tooth geometry per the spec', async () => {
     const renderer = await ReactThreeTestRenderer.create(<SceneContents />);
     const gearMeshes = renderer.scene.findAllByProps({ 'data-gear': true });
     const geometryTypes = gearMeshes.map((mesh) => (mesh.instance as THREE.Mesh).geometry.type);
-    expect(geometryTypes.every((type) => type === 'TorusGeometry')).toBe(true);
+    expect(geometryTypes.every((type) => type === 'ExtrudeGeometry')).toBe(true);
   });
 
   it('registers and cleans up a scroll listener to drive the camera pull-back', async () => {

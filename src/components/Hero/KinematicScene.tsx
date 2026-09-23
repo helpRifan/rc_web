@@ -18,6 +18,45 @@ const BASE_ROTATION_SPEED = 0.25;
 const PARALLAX_STRENGTH = 0.15;
 const BASE_CAMERA_Z = 6;
 const CAMERA_PULLBACK = 2.5;
+const GEAR_TEETH = 10;
+
+// Builds a 2D gear-tooth silhouette (with a center bore hole) around the origin, ready to be
+// extruded into 3D. Alternates full-radius tooth tips with inner-radius roots around the rim so
+// the outline actually reads as a gear rather than a smooth ring.
+function createGearShape(radius: number, teeth: number, toothDepth: number): THREE.Shape {
+  const shape = new THREE.Shape();
+  const angleStep = (Math.PI * 2) / teeth;
+  const innerRadius = radius - toothDepth;
+
+  for (let i = 0; i < teeth; i++) {
+    const angle = i * angleStep;
+    const a1 = angle;
+    const a2 = angle + angleStep * 0.25;
+    const a3 = angle + angleStep * 0.5;
+    const a4 = angle + angleStep * 0.75;
+
+    const x1 = Math.cos(a1) * radius, y1 = Math.sin(a1) * radius;
+    const x2 = Math.cos(a2) * radius, y2 = Math.sin(a2) * radius;
+    const x3 = Math.cos(a3) * innerRadius, y3 = Math.sin(a3) * innerRadius;
+    const x4 = Math.cos(a4) * innerRadius, y4 = Math.sin(a4) * innerRadius;
+
+    if (i === 0) {
+      shape.moveTo(x1, y1);
+    } else {
+      shape.lineTo(x1, y1);
+    }
+    shape.lineTo(x2, y2);
+    shape.lineTo(x3, y3);
+    shape.lineTo(x4, y4);
+  }
+  shape.closePath();
+
+  const hole = new THREE.Path();
+  hole.absarc(0, 0, radius * 0.32, 0, Math.PI * 2, true);
+  shape.holes.push(hole);
+
+  return shape;
+}
 
 function GearMesh({
   index,
@@ -34,6 +73,29 @@ function GearMesh({
   // Neighbouring gears counter-rotate, as meshed gears do.
   const direction = index % 2 === 0 ? 1 : -1;
 
+  // Real gear teeth make both "this is a gear" and "it's rotating" obvious at a glance, so the
+  // low-segment-count torus hack (faceted ring standing in for teeth) is no longer needed.
+  const geometry = useMemo(() => {
+    const shape = createGearShape(radius, GEAR_TEETH, radius * 0.18);
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: radius * 0.35,
+      bevelEnabled: true,
+      bevelThickness: radius * 0.03,
+      bevelSize: radius * 0.03,
+      bevelSegments: 2,
+    });
+    // ExtrudeGeometry from a shape built around (0,0) should already be centered; center() is a
+    // cheap correctness safeguard in case bevel/hole geometry skews the bounds.
+    geo.center();
+    return geo;
+  }, [radius]);
+
+  // Unlike a JSX <torusGeometry> child, R3F's reconciler didn't construct this geometry, so it
+  // won't auto-dispose it on unmount or when `radius` changes — dispose it ourselves.
+  useEffect(() => {
+    return () => geometry.dispose();
+  }, [geometry]);
+
   useFrame(({ clock }) => {
     if (!meshRef.current) return;
     meshRef.current.rotation.z =
@@ -41,10 +103,7 @@ function GearMesh({
   });
 
   return (
-    <mesh ref={meshRef} position={position} data-gear>
-      {/* Low tubular-segment count gives a faceted ring whose facets visibly sweep past as it
-          spins; a smooth torus is rotationally symmetric about z and looks static. */}
-      <torusGeometry args={[radius, radius * 0.22, 12, 8]} />
+    <mesh ref={meshRef} position={position} geometry={geometry} data-gear>
       <meshStandardMaterial color="#BFC7CE" metalness={0.35} roughness={0.45} />
     </mesh>
   );
