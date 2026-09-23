@@ -55,6 +55,17 @@ export default function KinematicHero() {
           </Suspense>
         </SceneErrorBoundary>
       )}
+
+      {/* Darkening scrim so headline text (rendered by HomeView.tsx above this layer) stays
+          legible against the lit metal gears. Centered slightly upper-middle of the hero,
+          fading to transparent toward the edges so the rest of the scene stays bright. */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 60% 50% at 50% 45%, rgba(13,13,13,0.55) 0%, rgba(13,13,13,0.15) 60%, transparent 100%)',
+        }}
+      />
     </div>
   );
 }
