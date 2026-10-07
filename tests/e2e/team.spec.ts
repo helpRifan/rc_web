@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { horizontalOverflow, seriousAxeViolations } from './helpers';
 
-// Fixtures: the Board (Ihsan, Grace, Vinayak) and 14 core members, all without photos.
+// Fixtures: the Board (Ihsan, Grace, Vinayak) and 15 core members, all without photos.
 
 test('team shows the board, the core team and the faculty coordinator', async ({ page }) => {
   await page.goto('/team');
@@ -11,6 +11,10 @@ test('team shows the board, the core team and the faculty coordinator', async ({
   await expect(board.getByRole('link', { name: /^Grace/ })).toHaveAttribute('href', '/team/grace');
   await expect(page.getByRole('heading', { level: 2, name: 'Core team' })).toBeVisible();
   await expect(page.getByRole('heading', { level: 2, name: 'Faculty coordinator' })).toBeVisible();
+  const faculty = page.getByRole('region', { name: 'Faculty coordinator' });
+  await expect(faculty.getByText('Professor, VIT Chennai')).toBeVisible();
+  await expect(faculty.getByRole('link', { name: /^Google Scholar/ })).toHaveAttribute('href', /^https:\/\/scholar\.google\.com\//);
+  await expect(faculty.getByText(/it is my privilege to introduce our dynamic and vibrant community/)).toBeVisible();
   await expect(page.getByRole('link', { name: 'Join the club' })).toHaveAttribute('href', '/join');
   expect(await seriousAxeViolations(page)).toEqual([]);
 });
@@ -18,7 +22,7 @@ test('team shows the board, the core team and the faculty coordinator', async ({
 test('/team#projects opens the list filtered to Projects', async ({ page }) => {
   await page.goto('/team#projects');
   await expect(page.getByRole('button', { name: 'Projects' })).toHaveAttribute('aria-pressed', 'true');
-  const names = page.locator('#core-team h3');
+  const names = page.locator('#core-team h4');
   await expect(names).toHaveText(['Karthik', 'Akshaj', 'Tarun']);
 });
 
@@ -37,7 +41,7 @@ test.describe('reduced motion', () => {
     await expect(page.locator('[data-board-stage]')).toHaveAttribute('data-mode', 'static-row');
     await expect(page.locator('.badge-static-art').first()).toBeVisible();
     await expect(page.getByRole('group', { name: 'Filter by division' })).toBeVisible();
-    await expect(page.locator('#core-team h3')).toHaveCount(14);
+    await expect(page.locator('#core-team h4')).toHaveCount(15);
     await expect(page.locator('canvas')).toHaveCount(0);
   });
 });

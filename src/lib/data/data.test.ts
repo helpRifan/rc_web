@@ -87,11 +87,11 @@ describe('members', () => {
   it('splits and orders the team the way /team shows it', async () => {
     const { splitTeam } = await import('./members');
     const { faculty, board, core, alumni } = splitTeam(FIXTURE_MEMBERS);
-    expect(faculty.map(m => m.full_name)).toEqual(['Dr. Arockia Selvakumar']);
+    expect(faculty.map(m => m.full_name)).toEqual(['Dr. Arockia Selvakumar Arockia Doss']);
     expect(board.map(m => m.full_name)).toEqual(['Ihsan', 'Grace', 'Vinayak']);
     // Divisions in DIVISIONS order; heads before leads inside each.
     expect(core.map(m => m.full_name)).toEqual([
-      'Karthik', 'Akshaj', 'Tarun', 'Pranjal', 'Aurka', 'Basil', 'Leni', 'Goutham', 'Akshita', 'Aditya', 'Gurudeep', 'Ashton', 'Madhava', 'Daksh',
+      'Karthik', 'Akshaj', 'Tarun', 'Pranjal', 'Rifan', 'Aurka', 'Basil', 'Leni', 'Goutham', 'Akshita', 'Aditya', 'Gurudeep', 'Ashton', 'Madhava', 'Daksh',
     ]);
     expect(alumni).toEqual([]);
   });

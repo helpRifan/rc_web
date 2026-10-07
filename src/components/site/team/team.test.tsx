@@ -12,7 +12,6 @@ vi.mock('next/dynamic', () => ({
 }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), prefetch: vi.fn() }) }));
 
-import ChromaGrid from '@/components/reactbits/ChromaGrid';
 import type { PublicMember } from '@/lib/data/types';
 import { BadgeStatic } from './badge/BadgeStatic';
 import { badgeFaceOf } from './badge/badge-face';
@@ -21,7 +20,7 @@ import { BoardUnits } from './BoardUnits';
 import { resolveCoreView, SPHERE_MIN } from './CoreTeam';
 import { sphereKeyTarget } from './CoreSphere';
 import { coreItemOf } from './team-items';
-import { filterStatus, TeamList } from './TeamList';
+import { filterStatus, groupByDivision, rankInDivision, TeamList } from './TeamList';
 
 function member(slug: string, full_name: string, role_title: string, level: PublicMember['level'], division: PublicMember['division']): PublicMember {
   return {
@@ -97,12 +96,18 @@ describe('BadgeStatic', () => {
 });
 
 describe('TeamList', () => {
-  it('filters by division and reports the count', async () => {
+  const names = () => screen.getAllByRole('heading', { level: 4 }).map(h => h.textContent);
+  const divisions = () => screen.getAllByRole('heading', { level: 3 }).map(h => h.textContent);
+
+  it('groups the team by division, in the site order, and filters to one', async () => {
     const user = userEvent.setup();
     render(<TeamList members={CORE} divisionLines={{ projects: 'We build the robots.' }} initialDivision={null} />);
-    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(4);
+    expect(divisions()).toEqual(['Projects', 'Teaching', 'Marketing & Sponsorship']);
+    expect(names()).toEqual(['Cara', 'Dev', 'Eli', 'Fay']);
+    expect(screen.getByRole('region', { name: 'Projects' })).toHaveTextContent('2 people');
     await user.click(screen.getByRole('button', { name: 'Projects' }));
-    expect(screen.getAllByRole('heading', { level: 3 }).map(h => h.textContent)).toEqual(['Cara', 'Dev']);
+    expect(divisions()).toEqual(['Projects']);
+    expect(names()).toEqual(['Cara', 'Dev']);
     expect(screen.getByText('Showing 2 people in Projects.')).toBeInTheDocument();
     expect(screen.getByText('We build the robots.')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'All' }));
@@ -119,17 +124,26 @@ describe('TeamList', () => {
   it('starts on the division from the hash', () => {
     render(<TeamList members={CORE} divisionLines={{}} initialDivision="teaching" />);
     expect(screen.getByRole('button', { name: 'Teaching' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getAllByRole('heading', { level: 3 }).map(h => h.textContent)).toEqual(['Eli']);
+    expect(names()).toEqual(['Eli']);
+  });
+
+  it('links every card to its profile, in colour (no grayscale layers)', () => {
+    const { container } = render(<TeamList members={CORE} divisionLines={{}} initialDivision={null} />);
+    expect(screen.getByRole('link', { name: /^Cara/ })).toHaveAttribute('href', '/team/cara');
+    expect([...container.querySelectorAll<HTMLElement>('*')].some(el => el.style.backdropFilter)).toBe(false);
   });
 });
 
-describe('ChromaGrid', () => {
-  const layers = (container: HTMLElement) => [...container.querySelectorAll<HTMLElement>('div')].filter(el => el.style.backdropFilter);
-  it('drops the grayscale layers on coarse pointers', () => {
-    const { container, rerender } = render(<ChromaGrid items={CORE} />);
-    expect(layers(container)).toHaveLength(2);
-    rerender(<ChromaGrid items={CORE} coarse />);
-    expect(layers(container)).toHaveLength(0);
+describe('groupByDivision', () => {
+  it('puts heads before leads within a division, then keeps the roster order', () => {
+    const items = [
+      member('gil', 'Gil', 'Projects Lead', 'lead', 'projects'),
+      member('hal', 'Hal', 'Member', 'lead', 'projects'),
+      member('ivy', 'Ivy', 'Projects Head', 'head', 'projects'),
+      member('jo', 'Jo', 'Projects Lead', 'lead', 'projects'),
+    ].map(coreItemOf);
+    expect(groupByDivision(items)[0].members.map(m => m.name)).toEqual(['Ivy', 'Gil', 'Jo', 'Hal']);
+    expect([rankInDivision('Technical Head'), rankInDivision('Design / Creative Lead'), rankInDivision(null)]).toEqual([0, 1, 2]);
   });
 });
 
@@ -141,16 +155,14 @@ describe('filterStatus', () => {
 });
 
 describe('resolveCoreView', () => {
-  const base = { hydrated: true, wide: true, reducedMotion: false, webgl2: true, count: 14, coarse: false, hashDivision: false, chosen: null };
+  const base = { hydrated: true, wide: true, reducedMotion: false, webgl2: true, count: 14, chosen: null };
   it.each([
     ['under 768px', { ...base, wide: false }, { toggle: false, view: 'list' }],
     ['reduced motion', { ...base, reducedMotion: true }, { toggle: false, view: 'list' }],
     ['no WebGL2', { ...base, webgl2: false }, { toggle: false, view: 'list' }],
     ['too few people', { ...base, count: SPHERE_MIN - 1 }, { toggle: false, view: 'list' }],
-    ['coarse pointer', { ...base, coarse: true }, { toggle: true, view: 'list' }],
-    ['fine pointer', base, { toggle: true, view: 'sphere' }],
-    ['a division hash', { ...base, hashDivision: true }, { toggle: true, view: 'list' }],
-    ['a choice', { ...base, chosen: 'list' as const }, { toggle: true, view: 'list' }],
+    ['capable screen, the list by default', base, { toggle: true, view: 'list' }],
+    ['the sphere, chosen', { ...base, chosen: 'sphere' as const }, { toggle: true, view: 'sphere' }],
     ['before hydration', { ...base, hydrated: false }, { toggle: false, view: 'list' }],
   ])('%s', (_, state, expected) => {
     expect(resolveCoreView(state)).toEqual(expected);

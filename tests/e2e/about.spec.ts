@@ -13,10 +13,10 @@ test('about tells the club story, its aims and its faculty coordinator', async (
   await expect(aims).toHaveCount(5);
 
   const faculty = page.getByRole('region', { name: 'Faculty coordinator' });
-  await expect(faculty.getByText('Dr. Arockia Selvakumar', { exact: true })).toBeVisible();
+  await expect(faculty.getByText('Dr. Arockia Selvakumar Arockia Doss', { exact: true })).toBeVisible();
   await expect(faculty.getByRole('link', { name: /View VIT profile/ })).toHaveAttribute(
     'href',
-    'https://chennai.vit.ac.in/member/dr-arockia-selvakumar/',
+    'https://directorycc.vit.ac.in/faculty/50444-dr-arockia-selvakumar',
   );
   expect(await seriousAxeViolations(page)).toEqual([]);
 });

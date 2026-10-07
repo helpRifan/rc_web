@@ -32,6 +32,7 @@ insert into public.members (slug, full_name, role_title, level, division, photo_
   ('akshaj', 'Akshaj', 'Projects Lead', 'lead', 'projects', null, null, 50, false),
   ('tarun', 'Tarun', 'Projects Lead', 'lead', 'projects', null, null, 60, false),
   ('pranjal', 'Pranjal', 'Technical Head', 'head', 'webdev', null, null, 70, false),
+  ('rifan', 'Rifan', 'Web Dev Lead', 'lead', 'webdev', null, null, 75, false),
   ('aurka', 'Aurka', 'Teaching Lead', 'lead', 'teaching', null, null, 80, false),
   ('basil', 'Basil', 'Design / Creative Head', 'head', 'media', null, null, 90, false),
   ('leni', 'Leni', 'Design / Creative Lead', 'lead', 'media', null, null, 100, false),
@@ -43,3 +44,13 @@ insert into public.members (slug, full_name, role_title, level, division, photo_
   ('ashton', 'Ashton', 'Publicity Head', 'head', 'marketing', null, null, 160, false),
   ('daksh', 'Daksh', 'Publicity Lead', 'lead', 'marketing', null, null, 170, false)
 on conflict (slug) do nothing;
+
+-- The faculty coordinator's profile (owner's update, 2026-10-08), from his VIT Faculty Directory
+-- page. The same text as FACULTY in src/lib/site.ts, which also holds his longer message.
+update public.members set
+  full_name = 'Dr. Arockia Selvakumar Arockia Doss',
+  degree = 'PhD in Mechanical Engineering (robotic manipulator design), MIT Campus, Anna University, Chennai',
+  tags = array['Robotics and automation', 'CAD/CAM/CAE'],
+  about = 'Professor at VIT Chennai. His PhD, at MIT Campus, Anna University, was on robotic manipulator design, and his specialisations are robotics and automation, and CAD/CAM/CAE.',
+  portfolio_url = 'https://directorycc.vit.ac.in/faculty/50444-dr-arockia-selvakumar'
+where slug = 'arockia-selvakumar';

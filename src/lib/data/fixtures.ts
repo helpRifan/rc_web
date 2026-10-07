@@ -3,6 +3,7 @@
 // certificates, the club's own photos already on ImageKit (captions are DRAFTS from the gallery
 // brief, for owner approval), and the roster's first names and roles (inventory 2.3). Nothing is
 // invented to fill gaps; the same rows are seeded into rcweb-dev by supabase/dev/fixtures.sql.
+import { FACULTY } from '@/lib/site';
 import type { PublicEvent, PublicMember, PublicPartner, PublicPhoto, VerifiedCertificate } from './types';
 
 const IK = 'https://ik.imagekit.io/Rifan/robotics-club';
@@ -72,6 +73,7 @@ const ROSTER: Seat[] = [
   ['akshaj', 'Akshaj', 'Projects Lead', 'lead', 'projects'],
   ['tarun', 'Tarun', 'Projects Lead', 'lead', 'projects'],
   ['pranjal', 'Pranjal', 'Technical Head', 'head', 'webdev'],
+  ['rifan', 'Rifan', 'Web Dev Lead', 'lead', 'webdev'],
   ['aurka', 'Aurka', 'Teaching Lead', 'lead', 'teaching'],
   ['basil', 'Basil', 'Design / Creative Head', 'head', 'media'],
   ['leni', 'Leni', 'Design / Creative Lead', 'lead', 'media'],
@@ -109,9 +111,12 @@ function member(slug: string, full_name: string, role_title: string, level: Publ
 
 export const FIXTURE_MEMBERS: PublicMember[] = [
   {
-    ...member('arockia-selvakumar', 'Dr. Arockia Selvakumar', 'Faculty Coordinator', 'faculty', 'none', 0),
+    ...member('arockia-selvakumar', FACULTY.name, FACULTY.role, 'faculty', 'none', 0),
+    degree: FACULTY.education,
+    about: FACULTY.bio,
+    tags: [...FACULTY.specialisations],
     photo_url: `${IK}/faculty/fc.jpg`,
-    portfolio_url: 'https://chennai.vit.ac.in/member/dr-arockia-selvakumar/',
+    portfolio_url: FACULTY.profileUrl,
   },
   ...ROSTER.map(([slug, name, role, level, division], i) => member(slug, name, role, level, division, (i + 1) * 10)),
 ];

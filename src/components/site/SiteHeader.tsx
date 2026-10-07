@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { isActive, navItems, SITE } from '@/lib/site';
 
 // md: the width where the desktop nav takes over from the menu button.
@@ -13,12 +13,21 @@ const DESKTOP_QUERY = '(min-width: 48rem)';
 const LINK =
   'inline-flex items-center font-medium text-rc-muted transition-colors hover:text-rc-ink aria-[current=page]:text-rc-ink';
 
+function onScroll(change: () => void) {
+  window.addEventListener('scroll', change, { passive: true });
+  return () => window.removeEventListener('scroll', change);
+}
+
+/** Whether the page has scrolled under the header; false on the server and at the top. */
+const useScrolled = () => useSyncExternalStore(onScroll, () => window.scrollY > 12, () => false);
+
 export function SiteHeader({ showPartners = false }: { showPartners?: boolean }) {
   const items = navItems(showPartners);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const scrolled = useScrolled();
 
   // Close the menu on navigation (adjusting state during render, not in an effect).
   if (pathname !== lastPath) {
@@ -54,8 +63,12 @@ export function SiteHeader({ showPartners = false }: { showPartners?: boolean })
   }, [open]);
 
   return (
-    <header className={`fixed inset-x-0 top-0 z-30 ${open ? 'bg-rc-bg' : ''}`}>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-linear-to-b from-rc-bg/90 via-rc-bg/60 to-transparent" />
+    // At the top of a page a soft fade is enough; once content scrolls under the header it gets a
+    // solid, blurred bar, so headings never show through the logo and links.
+    <header
+      className={`fixed inset-x-0 top-0 z-30 transition-[background-color,border-color] duration-200 ${open ? 'bg-rc-bg' : scrolled ? 'border-b border-rc-line/60 bg-rc-bg/85 backdrop-blur-md' : 'border-b border-transparent'}`}
+    >
+      {!scrolled && !open && <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-linear-to-b from-rc-bg/90 via-rc-bg/60 to-transparent" />}
       <div className="site-gutter relative flex items-center justify-between gap-6 py-3">
         <Link href="/" className="inline-flex min-h-11 items-center gap-3 font-bold text-rc-muted transition-colors hover:text-rc-ink [font-stretch:112%]">
           <Image src="/logo.png" alt="" width={34} height={34} loading="eager" />

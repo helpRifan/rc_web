@@ -14,7 +14,6 @@ Components used, installed from the React Bits shadcn registry into `src/compone
 - ProfileCard (the faculty coordinator card)
 - Lanyard (the Team ID badges), with its `card.glb` model in `public/models/` (its demo texture removed by `scripts/slim-card-glb.mjs`; the badges are printed by the site)
 - InfiniteMenu (the core team sphere)
-- ChromaGrid (the Team list view)
 - TechText (the homepage title, with its exploded view on scroll)
 - ScrollReveal (the homepage About lead; scrubbed without GSAP)
 - SplitFlapText (the homepage numbers)

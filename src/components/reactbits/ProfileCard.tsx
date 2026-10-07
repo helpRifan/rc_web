@@ -55,6 +55,8 @@ interface ProfileCardProps {
   cardMaxHeight?: string;
   /** [port] false hides the name and title printed over the card, for when the page shows them beside it. */
   showDetails?: boolean;
+  /** [port] true shows the photo in its own colours (the registry blends it as luminosity over the card's gradient). */
+  trueColour?: boolean;
 }
 
 interface TiltEngine {
@@ -87,6 +89,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
   showUserInfo = true,
   cardMaxHeight = '540px',
   showDetails = true,
+  trueColour = false,
   onContactClick
 }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -518,7 +521,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
             <div
               className="overflow-visible"
               style={{
-                mixBlendMode: 'luminosity',
+                mixBlendMode: trueColour ? 'normal' : 'luminosity',
                 transform: 'translateZ(2px)',
                 gridArea: '1 / -1',
                 borderRadius: cardRadius,

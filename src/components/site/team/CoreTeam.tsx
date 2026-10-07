@@ -14,21 +14,20 @@ export const SPHERE_MIN = 6;
 
 export type CoreView = 'sphere' | 'list';
 
-/** Whether the view toggle shows, and which view is on (team brief 5.13). */
+/**
+ * Whether the view toggle shows, and which view is on (team brief 5.13). The grouped list is the
+ * default everywhere (owner, 2026-10-08: the team should look organised); the sphere is a choice.
+ */
 export function resolveCoreView(s: {
   hydrated: boolean;
   wide: boolean;
   reducedMotion: boolean;
   webgl2: boolean;
   count: number;
-  coarse: boolean;
-  hashDivision: boolean;
   chosen: CoreView | null;
 }): { toggle: boolean; view: CoreView } {
   if (!s.hydrated || !s.wide || s.reducedMotion || !s.webgl2 || s.count < SPHERE_MIN) return { toggle: false, view: 'list' };
-  if (s.chosen) return { toggle: true, view: s.chosen };
-  if (s.hashDivision || s.coarse) return { toggle: true, view: 'list' };
-  return { toggle: true, view: 'sphere' };
+  return { toggle: true, view: s.chosen ?? 'list' };
 }
 
 type Props = {
@@ -38,11 +37,10 @@ type Props = {
   header: ReactNode;
 };
 
-/** The core team: the sphere on wide fine-pointer screens, the list everywhere else, and a toggle between them. */
+/** The core team: the list grouped by division, and on capable wide screens a toggle to the sphere. */
 export function CoreTeam({ members, divisionLines, header }: Props) {
   const hydrated = useHydrated();
   const wide = useMedia('(min-width: 48rem)');
-  const coarse = useMedia('(pointer: coarse)');
   const reducedMotion = usePrefersReducedMotion();
   const webgl2 = useWebGL2();
   const hash = useHash();
@@ -58,8 +56,6 @@ export function CoreTeam({ members, divisionLines, header }: Props) {
     reducedMotion,
     webgl2: webgl2 && !sphereFailed,
     count: members.length,
-    coarse,
-    hashDivision: hashDivision !== null,
     chosen,
   });
 

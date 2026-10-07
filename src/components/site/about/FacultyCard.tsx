@@ -15,7 +15,8 @@ const subscribeFine = (onChange: () => void) => {
 type Props = { name: string; role: string; photoUrl: string };
 
 /**
- * The faculty coordinator's holographic ProfileCard, lit with the club blues. Decorative: the name,
+ * The faculty coordinator's holographic ProfileCard, lit with the club blues, his photo in its own
+ * colours (owner, 2026-10-08: no monochrome). Decorative: the name,
  * role and profile link are always in the HTML beside it, so the card prints neither. Tilt only on
  * fine pointers, never under reduced motion.
  */
@@ -34,6 +35,7 @@ export function FacultyCard({ name, role, photoUrl }: Props) {
         name={name}
         title={role}
         showDetails={false}
+        trueColour
         showUserInfo={false}
         enableTilt={fine && !reduce}
         enableMobileTilt={false}

@@ -656,20 +656,73 @@
   }
 }
 
-/* The core team list (team brief 5.12): two columns on phones, as many 220px columns as fit from 768px. */
-.chroma-grid {
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+/* The core team list (owner's brief, 2026-10-08: organised, in colour). Org-chart rows: each
+   division is a block exactly as wide as its people (every card the same 12.5rem), under a rule with
+   its name; blocks sit side by side and wrap, so a one-person division never leaves a row empty.
+   Phones stack them, two cards across. */
+.division-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3rem 2rem;
 }
-@media (width >= 48rem) {
-  .chroma-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+.division-group {
+  flex: 0 1 calc(var(--n, 1) * 12.5rem + (var(--n, 1) - 1) * 1rem);
+  min-width: min(100%, 10.5rem);
+  border-top: 1px solid var(--color-rc-line);
+  padding-top: 1rem;
+}
+.division-group-cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr));
+}
+@media (width < 40rem) {
+  .division-group {
+    flex-basis: 100%;
+  }
+  .division-group-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-/* A member without a photo: their initials on the approved monogram tile. */
+.member-card {
+  display: block;
+  height: 100%;
+  padding: 10px;
+  border: 1px solid rgba(191, 199, 206, 0.16);
+  border-radius: 18px;
+  background: linear-gradient(var(--card-angle, 160deg), rgba(74, 141, 183, 0.3), rgba(13, 13, 13, 0) 65%), var(--color-rc-surface);
+  transition: border-color 200ms, transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.member-card:hover,
+.member-card:focus-visible {
+  border-color: var(--color-rc-accent);
+  transform: translateY(-3px);
+}
+.member-card-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 12px;
+}
+.member-card-media img {
+  transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.member-card:hover .member-card-media img {
+  transform: scale(1.04);
+}
+@media (prefers-reduced-motion: reduce) {
+  .member-card:hover,
+  .member-card:focus-visible,
+  .member-card:hover .member-card-media img {
+    transform: none;
+  }
+}
+/* A member without a photo: their initials on a club-blue tile, its light turned by division. */
 .monotile {
   background:
-    radial-gradient(circle at 30% 20%, rgba(229, 232, 235, 0.25), transparent 55%),
-    linear-gradient(160deg, #619AC3 0%, #4A8DB7 45%, #0D0D0D 100%);
+    radial-gradient(circle at 30% 20%, rgba(229, 232, 235, 0.3), transparent 55%),
+    linear-gradient(var(--card-angle, 160deg), #619AC3 0%, #4A8DB7 50%, color-mix(in srgb, #4A8DB7 42%, #0D0D0D) 100%);
 }
 
 /* A member's own badge (member-profile brief 3): one badge hanging on its own stage, its bottom edge
