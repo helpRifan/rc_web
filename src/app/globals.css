@@ -1,0 +1,739 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Plans and specs quote class names (including banned ones); don't generate CSS from them. */
+@source not "../../docs";
+
+/* The site is dark only and <html> carries the `dark` class, so shadcn's dark: styles always apply. */
+@custom-variant dark (&:is(.dark *));
+
+/* Club logo palette only (spec 4.1). Every colour resolves to one of these six or a tint of one. */
+@theme {
+  --color-rc-bg: #0D0D0D;
+  --color-rc-ink: #FFFFFF;
+  --color-rc-text: #E5E8EB;
+  --color-rc-muted: #BFC7CE;
+  --color-rc-accent: #619AC3;
+  --color-rc-accent-deep: #4A8DB7;
+  --color-rc-line: rgba(191, 199, 206, 0.28);
+  --color-rc-surface: rgba(191, 199, 206, 0.06);
+}
+
+@theme inline {
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-heading: var(--font-archivo), system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+/* Dark only: there is no light theme (spec 4.1). */
+:root {
+  color-scheme: dark;
+  --background: #0D0D0D;
+  --foreground: #E5E8EB;
+  --card: #0D0D0D;
+  --card-foreground: #E5E8EB;
+  --popover: #0D0D0D;
+  --popover-foreground: #E5E8EB;
+  --primary: #619AC3;
+  --primary-foreground: #0D0D0D;
+  --secondary: rgba(191, 199, 206, 0.12);
+  --secondary-foreground: #FFFFFF;
+  --muted: rgba(191, 199, 206, 0.08);
+  --muted-foreground: #BFC7CE;
+  --accent: rgba(97, 154, 195, 0.16);
+  --accent-foreground: #FFFFFF;
+  --destructive: #E5E8EB;
+  --border: rgba(191, 199, 206, 0.28);
+  --input: rgba(191, 199, 206, 0.28);
+  --ring: #FFFFFF;
+  --chart-1: #619AC3;
+  --chart-2: #4A8DB7;
+  --chart-3: #BFC7CE;
+  --chart-4: #E5E8EB;
+  --chart-5: #FFFFFF;
+  --radius: 0.5rem;
+  --sidebar: #0D0D0D;
+  --sidebar-foreground: #E5E8EB;
+  --sidebar-primary: #619AC3;
+  --sidebar-primary-foreground: #0D0D0D;
+  --sidebar-accent: rgba(97, 154, 195, 0.16);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(191, 199, 206, 0.28);
+  --sidebar-ring: #FFFFFF;
+}
+
+@utility type-display {
+  font-stretch: 125%;
+  font-weight: 800;
+  font-size: clamp(2.75rem, 6vw, 5.5rem);
+  line-height: 1;
+}
+
+@utility type-section {
+  font-stretch: 118%;
+  font-weight: 800;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.1;
+}
+
+@utility type-body {
+  font-size: 1rem;
+  line-height: 1.55;
+  @media (width >= 48rem) {
+    font-size: 1.0625rem;
+  }
+}
+
+@utility type-ui {
+  font-stretch: 102%;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+/* Text links (the approved prototypes' style): white words, a club-blue underline that turns white on hover. */
+@utility text-link {
+  @apply type-ui inline-flex min-h-11 items-center text-rc-ink underline decoration-rc-accent decoration-2 underline-offset-[6px] transition-colors hover:decoration-rc-ink;
+}
+
+/* The one site gutter: header, hero, page sections and footer all start on the same left edge
+   (the owner-approved hero's 7vw). Content inside is left-aligned with its own max width. */
+@utility site-gutter {
+  padding-inline: 1.25rem;
+  @media (width >= 40rem) {
+    padding-inline: 7vw;
+  }
+}
+
+/* Poster for the glyph field: the server HTML before hydration, and the whole field when WebGL
+   is unavailable. Dense sub-cell dots, masked into soft clusters brightest where the live field's
+   cursor halo starts (74% 42%), so it reads as the same field rather than a plain dot grid. */
+.field-poster {
+  background-color: #0D0D0D;
+  /* Two #0D0D0D gap lines per 22px tile cut the dot screen into glyph-sized cells, as in the shader. */
+  background-image:
+    linear-gradient(to right, #0D0D0D 0 4px, transparent 4px),
+    linear-gradient(to bottom, #0D0D0D 0 4px, transparent 4px),
+    radial-gradient(circle, rgba(97, 154, 195, 0.75) 1.2px, transparent 1.6px);
+  background-size: 22px 22px, 22px 22px, 4.5px 4.5px;
+  mask-image:
+    radial-gradient(34% 46% at 74% 42%, #0D0D0D 0%, rgba(13, 13, 13, 0.8) 40%, transparent 74%),
+    radial-gradient(22% 28% at 16% 80%, rgba(13, 13, 13, 0.7) 0%, transparent 70%),
+    radial-gradient(26% 22% at 44% 12%, rgba(13, 13, 13, 0.6) 0%, transparent 70%),
+    radial-gradient(20% 26% at 90% 88%, rgba(13, 13, 13, 0.7) 0%, transparent 70%),
+    radial-gradient(18% 20% at 6% 30%, rgba(13, 13, 13, 0.5) 0%, transparent 70%);
+}
+@media (width < 40rem) {
+  .field-poster {
+    mask-image:
+      radial-gradient(64% 28% at 50% 14%, #0D0D0D 0%, rgba(13, 13, 13, 0.75) 40%, transparent 74%),
+      radial-gradient(54% 24% at 30% 88%, rgba(13, 13, 13, 0.7) 0%, transparent 70%),
+      radial-gradient(44% 20% at 85% 60%, rgba(13, 13, 13, 0.5) 0%, transparent 70%);
+  }
+}
+
+/* Poster for the events road: the no-WebGL fallback and the frame before the canvas fades in.
+   Lanes converging up and to the right, blue on the left and white on the right, like the road. */
+.road-poster {
+  background-color: #0D0D0D;
+  background-image:
+    radial-gradient(60% 45% at 26% 108%, rgba(97, 154, 195, 0.34), transparent 70%),
+    radial-gradient(48% 40% at 82% 108%, rgba(229, 232, 235, 0.22), transparent 70%),
+    radial-gradient(28% 22% at 64% 46%, rgba(74, 141, 183, 0.16), transparent 80%);
+}
+.road-poster::before {
+  content: "";
+  position: absolute;
+  inset: 46% -30% -10% -30%;
+  background-image: repeating-linear-gradient(90deg,
+    transparent 0 9.6%, rgba(97, 154, 195, 0.42) 9.6% 10%,
+    transparent 10% 19.6%, rgba(229, 232, 235, 0.3) 19.6% 20%);
+  transform: perspective(420px) rotateX(64deg);
+  transform-origin: 62% 0%;
+  mask-image: linear-gradient(to bottom, transparent 0%, #0D0D0D 70%);
+}
+
+/* Once the live field has its canvas, the poster steps aside: under mix-blend-lighten its
+   dots would show through the field's dark gaps. A lost context removes the canvas, so the
+   poster comes back. The host's own #0D0D0D is what lighten lifts the shader's black to. */
+.field-host:has(canvas) .field-poster {
+  opacity: 0;
+}
+
+/* Legibility scrim behind the hero copy only (the owner-approved prototype's values). It keeps
+   body text above WCAG AA over the brightest glyphs and leaves the rest of the field untouched. */
+.hero-scrim {
+  position: relative;
+  isolation: isolate;
+}
+.hero-scrim::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -30% -28% -30% -40%;
+  pointer-events: none;
+  background: radial-gradient(closest-side,
+    rgba(13, 13, 13, 0.8) 0%,
+    rgba(13, 13, 13, 0.66) 50%,
+    rgba(13, 13, 13, 0.32) 78%,
+    rgba(13, 13, 13, 0) 100%);
+}
+@media (width < 700px) {
+  .hero-scrim::before {
+    inset: -16% -20px;
+    background: linear-gradient(to bottom,
+      rgba(13, 13, 13, 0) 0%,
+      rgba(13, 13, 13, 0.64) 16%,
+      rgba(13, 13, 13, 0.64) 84%,
+      rgba(13, 13, 13, 0) 100%);
+  }
+}
+
+/* The home hero (owner's brief, 2026-10-07). With motion the section is a tall track and the stage
+   sticks while the title explodes and the club reel grows over it; reduced motion keeps one screen. */
+.hero-track {
+  height: 250svh;
+}
+@media (width < 40rem) {
+  .hero-track {
+    height: 220svh;
+  }
+}
+.hero-stage {
+  min-height: 100svh;
+}
+.hero-track .hero-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+/* The h1's box is where Tech Text lays out the letters. The same words in the same face hold that
+   box, and are what shows before the canvas has drawn or without JavaScript. */
+.hero-title {
+  container-type: inline-size;
+}
+.hero-title-text {
+  display: block;
+  color: var(--color-rc-ink);
+  font-weight: 800;
+  font-stretch: 125%;
+  /* Ink width = the box width, as Tech Text fits it; the margin cancels the R's side bearing. */
+  font-size: 9.66cqw;
+  margin-inline-start: -0.08em;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+  white-space: nowrap;
+  transition: opacity 240ms ease-out;
+}
+@media (width < 40rem) {
+  .hero-title-text {
+    font-size: 15.11cqw;
+  }
+}
+.hero-title[data-ready] .hero-title-text {
+  opacity: 0;
+}
+.hero-reel {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  opacity: 0;
+  background: var(--color-rc-bg);
+  clip-path: inset(32% 33% 32% 33% round 18px);
+  will-change: clip-path;
+}
+/* As the reel fills the screen its foot fades into the page, so it hands over to About softly. */
+.hero-reel::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 24%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--color-rc-bg));
+  opacity: var(--reel-foot, 0);
+}
+.hero-reel video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.22);
+  will-change: transform;
+}
+.hero-reel-toggle {
+  position: absolute;
+  z-index: 40;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  min-height: 2.75rem;
+  padding-inline: 1rem;
+  border: 1px solid var(--color-rc-line);
+  border-radius: 0.375rem;
+  color: var(--color-rc-ink);
+  background: rgba(13, 13, 13, 0.72);
+  transition: border-color 150ms;
+}
+.hero-reel-toggle:hover {
+  border-color: var(--color-rc-muted);
+}
+@media (width >= 40rem) {
+  .hero-reel-toggle {
+    right: 7vw;
+    bottom: 2rem;
+  }
+}
+
+/* About: the lead clears word by word as it scrolls up (React Bits Scroll Reveal). */
+.about-lead {
+  font-weight: 800;
+  font-stretch: 118%;
+  font-size: clamp(1.875rem, 4.6vw, 4rem);
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+/* Split-flap numbers (React Bits Split Flap Text). Tiles are tints of the palette; the face is the
+   page's own, with tabular figures so every tile is the same width. */
+.split-flap {
+  display: inline-flex;
+  gap: 0.06em;
+  font-weight: 800;
+  font-stretch: 100%;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.split-flap-tile {
+  position: relative;
+  width: 0.78em;
+  height: 1.1em;
+  overflow: hidden;
+  border-radius: 0.08em;
+  perspective: 520px;
+  transform-style: preserve-3d;
+  isolation: isolate;
+  box-shadow: 0 0.14em 0.32em rgba(13, 13, 13, 0.5);
+}
+.split-flap-tile::before {
+  content: "";
+  position: absolute;
+  z-index: 8;
+  top: calc(50% - 0.5px);
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-rc-bg);
+  box-shadow: 0 1px 0 rgba(229, 232, 235, 0.06);
+}
+.split-flap-half,
+.split-flap-flap {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+}
+.split-flap-half--top,
+.split-flap-flap--front {
+  top: 0;
+  background: color-mix(in srgb, var(--color-rc-muted) 13%, var(--color-rc-bg));
+}
+.split-flap-half--bottom,
+.split-flap-flap--back {
+  bottom: 0;
+  background: color-mix(in srgb, var(--color-rc-muted) 9%, var(--color-rc-bg));
+}
+.split-flap-char {
+  position: absolute;
+  left: 0;
+  display: flex;
+  width: 100%;
+  height: 200%;
+  align-items: center;
+  justify-content: center;
+}
+.split-flap-half--top .split-flap-char,
+.split-flap-flap--front .split-flap-char {
+  top: 0;
+}
+.split-flap-half--bottom .split-flap-char,
+.split-flap-flap--back .split-flap-char {
+  bottom: 0;
+}
+.split-flap-flap {
+  z-index: 6;
+  will-change: transform;
+}
+.split-flap-flap--front {
+  transform-origin: center bottom;
+  animation: split-flap-front var(--split-flap-duration, 0.07s) cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+.split-flap-flap--back {
+  transform-origin: center top;
+  transform: rotateX(90deg);
+  animation: split-flap-back var(--split-flap-duration, 0.07s) cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes split-flap-front {
+  from {
+    transform: rotateX(0deg);
+    filter: brightness(1.08);
+  }
+  to {
+    transform: rotateX(-90deg);
+    filter: brightness(0.52);
+  }
+}
+@keyframes split-flap-back {
+  0%,
+  45% {
+    transform: rotateX(90deg);
+    filter: brightness(0.58);
+  }
+  to {
+    transform: rotateX(0deg);
+    filter: brightness(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .split-flap-flap {
+    animation: none !important;
+  }
+}
+
+/* What we do (React Bits Flowing Menu). Rows run edge to edge; hovering one (or focusing it, or on a
+   touch screen scrolling it through the middle) slides in a club-blue marquee of its photos. */
+.flowing-menu {
+  border-bottom: 1px solid var(--color-rc-line);
+}
+.flowing-menu-row {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--color-rc-line);
+}
+.flowing-menu-link {
+  display: grid;
+  gap: 0.75rem 3rem;
+  align-items: baseline;
+  padding: clamp(1.5rem, 3.2vw, 2.5rem) 1.25rem;
+}
+.flowing-menu-link:focus-visible {
+  outline: 3px solid var(--color-rc-ink);
+  outline-offset: -3px;
+}
+@media (width >= 40rem) {
+  .flowing-menu-link {
+    padding-inline: 7vw;
+  }
+}
+@media (width >= 64rem) {
+  .flowing-menu-link {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+.flowing-menu-label,
+.flowing-menu-word {
+  font-weight: 800;
+  font-stretch: 125%;
+  font-size: clamp(2.25rem, 5.4vw, 5.25rem);
+  line-height: 0.95;
+}
+.flowing-menu-label {
+  color: var(--color-rc-ink);
+}
+.flowing-menu-description {
+  max-width: 42ch;
+  color: var(--color-rc-muted);
+}
+.flowing-menu-marquee {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-rc-accent);
+  transform: translateY(101%);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.flowing-menu-marquee-inner {
+  height: 100%;
+  transform: translateY(-101%);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.flowing-menu-row:focus-within .flowing-menu-marquee {
+  outline: 3px solid var(--color-rc-bg);
+  outline-offset: -7px;
+}
+.flowing-menu-track {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: flowing-menu-scroll 24s linear infinite;
+  animation-play-state: paused;
+}
+.flowing-menu-row[data-open] .flowing-menu-track {
+  animation-play-state: running;
+}
+.flowing-menu-sequence {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: 100%;
+}
+.flowing-menu-word {
+  padding-inline: 2vw;
+  color: var(--color-rc-bg);
+  white-space: nowrap;
+}
+.flowing-menu-image {
+  width: auto;
+  height: 62%;
+  aspect-ratio: 5 / 2;
+  object-fit: cover;
+  border-radius: 999px;
+}
+@keyframes flowing-menu-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flowing-menu-marquee {
+    display: none;
+  }
+}
+
+/* Latest photos (React Bits Drift Wall): edge to edge, tall enough that the tilted columns read
+   as a wall rather than a strip. */
+.photo-wall {
+  height: clamp(26rem, 70vh, 44rem);
+}
+
+/* The Team board (team brief 3, 5.1, 5.4, 5.6). Under 768px: a sideways rail of HTML badges on
+   short straps. From 768px: a fixed-height stage (a size container), each badge hanging where the
+   live WebGL badge rests, from the same formula as stage-layout.ts. */
+.board-units {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding: 0 1.25rem 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1.25rem;
+  scrollbar-width: none;
+}
+.badge-unit {
+  flex: none;
+  width: 240px;
+  padding-top: 56px;
+  scroll-snap-align: center;
+}
+.badge-strap {
+  position: absolute;
+  left: 50%;
+  bottom: 97%;
+  width: 18%;
+  height: 56px;
+  translate: -50% 0;
+  background:
+    linear-gradient(to right, transparent 8%, rgba(13, 13, 13, 0.35) 8% 11%, transparent 11% 89%, rgba(13, 13, 13, 0.35) 89% 92%, transparent 92%),
+    #4A8DB7;
+}
+.badge-clip {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: -2%;
+  width: 22%;
+  height: 6%;
+  translate: -50% 0;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #E5E8EB, #BFC7CE);
+}
+.badge-label {
+  display: block;
+  margin-top: 0.875rem;
+}
+@media (width >= 48rem) {
+  .board-stage {
+    height: max(min(100svh, 920px), 880px);
+    overflow: hidden;
+    container-type: size;
+    touch-action: pan-y;
+  }
+  .board-units {
+    --card-px: min(clamp(240px, 40cqh, 300px), (100cqw - 96px) / var(--n) / 0.82386);
+    position: absolute;
+    inset: 0;
+    display: block;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .badge-unit {
+    position: absolute;
+    bottom: 0;
+    left: calc(48px + (100cqw - 96px) * (var(--i) + 0.5) / var(--n));
+    width: calc(var(--card-px) * 0.7164);
+    padding-top: 0;
+    translate: -50% 0;
+    pointer-events: auto;
+  }
+  .badge-strap {
+    height: 100cqh;
+  }
+  .badge-label {
+    height: 96px;
+    margin-top: 20px;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+@media (width >= 75rem) {
+  .board-stage {
+    height: max(min(100svh, 920px), 640px);
+  }
+  .board-units {
+    --card-px: min(clamp(260px, 40cqh, 340px), (64cqw - 96px) / var(--n) / 0.82386);
+  }
+  .badge-unit {
+    left: calc(36cqw + 48px + (64cqw - 96px) * (var(--i) + 0.5) / var(--n));
+  }
+  .board-copy {
+    width: 36%;
+    height: 100%;
+  }
+  .board-heading {
+    position: absolute;
+    bottom: 2.75rem;
+  }
+}
+/* The home photo strip's rhythm (home brief, appendix A): the right column 1.5rem lower on phones;
+   from 1024px, three columns with the middle one 4rem lower. Later rules win here by source order. */
+.photo-stagger > li:nth-child(even) {
+  translate: 0 1.5rem;
+}
+@media (width >= 64rem) {
+  .photo-stagger > li:nth-child(even) {
+    translate: none;
+  }
+  .photo-stagger > li:nth-child(3n + 2) {
+    translate: 0 4rem;
+  }
+}
+
+/* The core team list (team brief 5.12): two columns on phones, as many 220px columns as fit from 768px. */
+.chroma-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+@media (width >= 48rem) {
+  .chroma-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+/* A member without a photo: their initials on the approved monogram tile. */
+.monotile {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(229, 232, 235, 0.25), transparent 55%),
+    linear-gradient(160deg, #619AC3 0%, #4A8DB7 45%, #0D0D0D 100%);
+}
+
+/* A member's own badge (member-profile brief 3): one badge hanging on its own stage, its bottom edge
+   10% above the stage's bottom, as ProfileBadge's live layout puts it. */
+.profile-stage {
+  height: 60svh;
+  min-height: 440px;
+  overflow: hidden;
+}
+.profile-badge {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  width: 240px;
+  translate: -50% 0;
+}
+.profile-badge .badge-strap {
+  height: 100svh;
+}
+@media (width >= 48rem) {
+  .profile-stage {
+    height: calc(100svh - 7rem);
+    min-height: 560px;
+    container-type: size;
+  }
+  .profile-badge {
+    --card-px: clamp(340px, 40cqh, 420px);
+    bottom: 10%;
+    width: calc(var(--card-px) * 0.7164);
+  }
+  .profile-badge .badge-strap {
+    height: 100cqh;
+  }
+}
+/* From 768px with motion allowed, the HTML badges wait for the live board; they show if it can't run. */
+@media (width >= 48rem) and (prefers-reduced-motion: no-preference) {
+  [data-board-stage]:not([data-mode='static-row']) .badge-static-art {
+    visibility: hidden;
+  }
+}
+/* Live: the canvas badge is the thing to grab, so only the labels take the pointer. */
+[data-board-stage][data-mode='live'] .badge-unit,
+[data-board-stage][data-mode='live'] .badge-unit-link {
+  pointer-events: none;
+}
+[data-board-stage][data-mode='live'] .badge-label {
+  pointer-events: auto;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply font-sans;
+    background: #0D0D0D;
+  }
+  body {
+    @apply bg-background text-foreground type-body;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  :focus-visible {
+    outline: 2px solid #FFFFFF;
+    outline-offset: 3px;
+  }
+}

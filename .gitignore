@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+.vercel/
+.superpowers/
+*.log
+.DS_Store
+
+# Secrets: only the example file is tracked
+.env*
+!.env.example
+/shots/
+next-env.d.ts
+*.tsbuildinfo
+*.pem
